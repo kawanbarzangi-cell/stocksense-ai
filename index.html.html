@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>StockSense AI — All Markets Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;--card:#0e1118;--card2:#141720;--border:#1f2637;
+  --accent:#3b82f6;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--purple:#8b5cf6;
+  --text:#f1f5f9;--sub:#64748b;--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+html[lang="ar"]{--font:'Tajawal',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:52px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;gap:8px;z-index:10;}
+.logo{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:7px;white-space:nowrap;}
+.logo-pulse{width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.topbar-mid{flex:1;display:flex;justify-content:center;overflow:hidden;}
+.ticker-bar{overflow:hidden;max-width:560px;width:100%;}
+.ticker-inner{display:flex;gap:28px;animation:tick 24s linear infinite;width:max-content;}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ti{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.68rem;white-space:nowrap;}
+.ti-sym{font-weight:600;}
+.ti-up{color:var(--green);}.ti-dn{color:var(--red);}.ti-pr{color:var(--sub);}
+.topbar-right{display:flex;align-items:center;gap:6px;}
+.btn-sm{font-size:.7rem;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:var(--font);transition:all .15s;white-space:nowrap;}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+.live-pill{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:.63rem;color:var(--green);border:1px solid rgba(16,185,129,.25);padding:3px 8px;border-radius:20px;background:rgba(16,185,129,.06);}
+.lpd{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pulse 1.4s infinite;}
+/* Mobile menu button */
+.mob-menu-btn{display:none;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);cursor:pointer;font-size:1rem;}
+
+/* ── DISCLAIMER STRIP ── */
+.disc-strip{background:rgba(245,158,11,.07);border-bottom:1px solid rgba(245,158,11,.2);padding:5px 16px;font-size:.6rem;color:rgba(245,158,11,.8);flex-shrink:0;font-family:var(--mono);}
+
+/* ── MAIN BODY ── */
+.body-wrap{display:flex;flex:1;overflow:hidden;position:relative;}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar{width:210px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:transform .25s ease;}
+.sidebar-search{padding:10px;}
+.s-inp{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:var(--font);font-size:.77rem;outline:none;transition:border-color .2s;}
+.s-inp:focus{border-color:var(--accent);}
+.s-inp::placeholder{color:var(--sub);}
+.cat-tabs{display:flex;flex-wrap:wrap;gap:3px;padding:0 10px 8px;}
+.cat-btn{font-size:.62rem;font-weight:600;padding:3px 7px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--sub);transition:all .15s;font-family:var(--font);}
+.cat-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.cat-btn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
+.asset-list{flex:1;overflow-y:auto;padding:0 6px 10px;}
+.asset-list::-webkit-scrollbar{width:3px;}
+.asset-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.asset-item{display:flex;align-items:center;justify-content:space-between;padding:7px 7px;border-radius:8px;cursor:pointer;transition:background .15s;margin-bottom:2px;}
+.asset-item:hover{background:var(--card2);}
+.asset-item.selected{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);}
+.ai-left{display:flex;align-items:center;gap:7px;}
+.ai-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.ai-name{font-size:.78rem;font-weight:600;}
+.ai-type{font-size:.6rem;color:var(--sub);}
+.ai-right{text-align:right;}
+.ai-price{font-family:var(--mono);font-size:.7rem;font-weight:500;}
+.ai-chg{font-family:var(--mono);font-size:.6rem;}
+.fav-star{background:none;border:none;font-size:.82rem;cursor:pointer;color:var(--sub);padding:0;transition:all .2s;flex-shrink:0;margin-left:3px;}
+.fav-star.on{color:#f59e0b;text-shadow:0 0 6px rgba(245,158,11,.5);}
+.fav-star:hover{transform:scale(1.2);}
+.section-label{font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--sub);padding:9px 7px 4px;display:flex;align-items:center;gap:4px;}
+
+/* ── MAIN CONTENT ── */
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.main-tabs{display:flex;gap:2px;padding:8px 14px 0;border-bottom:1px solid var(--border);flex-shrink:0;}
+.mtab{padding:7px 12px;font-size:.76rem;font-weight:600;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.mtab:hover{color:var(--text);}
+.mtab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.content-scroll{flex:1;overflow-y:auto;padding:14px;}
+.content-scroll::-webkit-scrollbar{width:4px;}
+.content-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── DETAIL CARD ── */
+.detail-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.dh-left{display:flex;align-items:center;gap:12px;}
+.dh-icon{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;}
+.dh-name{font-size:1.4rem;font-weight:700;}
+.dh-full{font-size:.8rem;color:var(--sub);margin-top:2px;}
+.dh-price-block{text-align:right;}
+.dh-price{font-family:var(--mono);font-size:1.9rem;font-weight:500;}
+.dh-chg{font-family:var(--mono);font-size:.82rem;margin-top:3px;}
+.signal-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.sig-card{flex:1;min-width:140px;border-radius:12px;padding:12px 14px;border:1px solid;}
+.sig-buy{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25);}
+.sig-sell{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);}
+.sig-wait{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25);}
+.sig-label{font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.sig-buy .sig-label{color:var(--green);}
+.sig-sell .sig-label{color:var(--red);}
+.sig-wait .sig-label{color:var(--yellow);}
+.sig-main{font-size:.95rem;font-weight:700;margin-bottom:3px;}
+.sig-buy .sig-main{color:var(--green);}
+.sig-sell .sig-main{color:var(--red);}
+.sig-wait .sig-main{color:var(--yellow);}
+.sig-sub{font-size:.72rem;color:var(--sub);line-height:1.5;}
+.conf-section{margin-bottom:16px;}
+.conf-label{font-size:.68rem;color:var(--sub);margin-bottom:5px;display:flex;justify-content:space-between;}
+.conf-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+.conf-fill{height:100%;border-radius:4px;transition:width 1.2s ease;}
+.cfg{background:linear-gradient(90deg,var(--green),#06d6a0);}
+.cfr{background:linear-gradient(90deg,var(--red),#ff6b6b);}
+.cfy{background:linear-gradient(90deg,var(--yellow),#fb923c);}
+.chart-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:14px;}
+.chart-title{font-size:.68rem;font-weight:600;color:var(--sub);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;}
+.chart-svg{width:100%;height:90px;}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:14px;}
+.info-box{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px;}
+.ib-label{font-size:.6rem;color:var(--sub);margin-bottom:3px;text-transform:uppercase;letter-spacing:.8px;}
+.ib-val{font-size:.88rem;font-weight:700;font-family:var(--mono);}
+.explainer{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(139,92,246,.07));border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:14px;margin-bottom:14px;}
+.exp-title{font-size:.7rem;font-weight:700;color:var(--accent);margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+.exp-body{font-size:.76rem;color:rgba(241,245,249,.75);line-height:1.7;}
+
+/* ── WATCHLIST ── */
+.wl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.wl-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:all .2s;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.wl-card:hover{border-color:rgba(59,130,246,.3);transform:translateY(-2px);}
+.wlc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.wlc-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.wlc-name{font-size:.88rem;font-weight:700;}.wlc-full{font-size:.62rem;color:var(--sub);}
+.wlc-sig{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:6px;}
+.wlc-buy{background:rgba(16,185,129,.15);color:var(--green);}
+.wlc-sell{background:rgba(239,68,68,.15);color:var(--red);}
+.wlc-wait{background:rgba(245,158,11,.15);color:var(--yellow);}
+.wlc-price{font-family:var(--mono);font-size:1rem;font-weight:500;margin-bottom:5px;}
+.wlc-advice{font-size:.7rem;color:var(--sub);line-height:1.4;}
+.wlc-conf{display:flex;align-items:center;gap:5px;margin-top:7px;}
+.wlc-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.wlc-fill{height:100%;border-radius:2px;}
+.wlc-pct{font-family:var(--mono);font-size:.6rem;color:var(--sub);}
+
+/* ── NEWS ── */
+.news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+.news-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:all .15s;}
+.news-card:hover{border-color:rgba(59,130,246,.25);}
+.nc-src{font-size:.58rem;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.nc-head{font-size:.81rem;font-weight:600;line-height:1.45;margin-bottom:7px;}
+.nc-foot{display:flex;align-items:center;justify-content:space-between;}
+.nc-tag{font-size:.58rem;color:var(--sub);font-family:var(--mono);}
+.nc-sent{font-size:.58rem;font-weight:600;padding:2px 6px;border-radius:5px;}
+.sent-bull{background:rgba(16,185,129,.12);color:var(--green);}
+.sent-bear{background:rgba(239,68,68,.12);color:var(--red);}
+.sent-neut{background:rgba(100,116,139,.15);color:var(--sub);}
+
+/* ── EMPTY STATES ── */
+.empty-wl{text-align:center;padding:50px 20px;color:var(--sub);}
+.ewl-icon{font-size:2.2rem;margin-bottom:10px;}
+.ewl-title{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:5px;}
+.ewl-sub{font-size:.78rem;line-height:1.6;}
+
+/* ── CHAT ── */
+.chat-panel{width:310px;background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:transform .25s ease;}
+.chat-hdr{padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.chat-hdr-info{}
+.chat-hdr-title{font-size:.83rem;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:6px;}
+.chat-hdr-sub{font-size:.6rem;color:var(--sub);margin-top:2px;}
+.ai-badge{font-size:.5rem;font-weight:700;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;padding:2px 6px;border-radius:5px;letter-spacing:.5px;}
+.chat-close-btn{display:none;background:none;border:1px solid var(--border);border-radius:7px;color:var(--sub);padding:4px 8px;cursor:pointer;font-size:.75rem;}
+.chat-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:0;}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.msg{max-width:92%;padding:8px 10px;border-radius:10px;font-size:.74rem;line-height:1.55;}
+.msg-ai{background:var(--card2);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:3px;}
+html[dir="rtl"] .msg-ai{align-self:flex-end;border-bottom-left-radius:10px;border-bottom-right-radius:3px;}
+.mlbl{font-size:.52rem;font-weight:700;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;display:flex;align-items:center;gap:4px;}
+.msg-user{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2);align-self:flex-end;border-bottom-right-radius:3px;}
+html[dir="rtl"] .msg-user{align-self:flex-start;border-bottom-right-radius:10px;border-bottom-left-radius:3px;}
+.chips-wrap{padding:7px 10px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:4px;flex-shrink:0;}
+.chip{font-size:.58rem;padding:3px 7px;background:var(--bg);border:1px solid var(--border);border-radius:7px;cursor:pointer;color:var(--sub);transition:all .15s;font-family:var(--mono);}
+.chip:hover{border-color:var(--accent);color:var(--accent);}
+.chat-foot{padding:9px 10px;border-top:1px solid var(--border);flex-shrink:0;}
+.chat-disc-txt{font-size:.54rem;color:var(--sub);text-align:center;margin-bottom:5px;font-family:var(--mono);line-height:1.4;}
+.chat-row{display:flex;gap:5px;}
+.chat-inp{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:var(--font);font-size:.74rem;outline:none;transition:border-color .2s;min-width:0;}
+.chat-inp:focus{border-color:var(--accent);}
+.chat-inp::placeholder{color:var(--sub);}
+.send-btn{background:var(--accent);border:none;border-radius:8px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.82rem;transition:all .15s;flex-shrink:0;}
+.send-btn:hover{background:#60a5fa;transform:scale(1.05);}
+.send-btn:disabled{background:var(--border);cursor:not-allowed;transform:none;}
+.typing{display:flex;gap:3px;padding:4px 2px;}
+.tdot{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:bounce 1.2s infinite;}
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* ── PRICE FLASH ── */
+.price-loading{opacity:.5;font-size:.6rem;color:var(--yellow);}
+.price-live{animation:priceFlash .5s ease;}
+@keyframes priceFlash{0%{opacity:.3}100%{opacity:1}}
+.price-up{animation:flashGreen .6s ease;}
+.price-dn{animation:flashRed .6s ease;}
+@keyframes flashGreen{0%{color:var(--green);background:rgba(16,185,129,.2)}100%{color:inherit;background:transparent}}
+@keyframes flashRed{0%{color:var(--red);background:rgba(239,68,68,.2)}100%{color:inherit;background:transparent}}
+
+/* ── MODAL ── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(7,9,15,.88);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.modal-ov.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:480px;width:92%;animation:fadeIn .3s ease;}
+.m-title{font-size:.95rem;font-weight:700;color:var(--yellow);margin-bottom:10px;}
+.m-body{font-size:.75rem;line-height:1.8;color:rgba(241,245,249,.75);margin-bottom:14px;}
+.m-body p{margin-bottom:8px;}
+.m-close{background:var(--accent);border:none;border-radius:8px;padding:8px 20px;color:#fff;font-family:var(--font);font-weight:600;cursor:pointer;font-size:.82rem;}
+
+/* ── MOBILE CHAT BUTTON ── */
+.mob-chat-btn{display:none;position:fixed;bottom:18px;right:18px;width:52px;height:52px;background:var(--accent);border-radius:50%;border:none;color:#fff;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 20px rgba(59,130,246,.5);z-index:100;align-items:center;justify-content:center;transition:transform .2s;}
+.mob-chat-btn:hover{transform:scale(1.1);}
+
+/* UTILITY */
+.green{color:var(--green);}.red{color:var(--red);}.yellow{color:var(--yellow);}
+
+/* ══════════════════════════════
+   RESPONSIVE — MOBILE FIRST
+══════════════════════════════ */
+@media(max-width:1024px){
+  .sidebar{width:185px;}
+  .chat-panel{width:270px;}
+}
+
+@media(max-width:768px){
+  body{overflow:auto;}
+  .body-wrap{overflow:visible;flex-direction:column;}
+
+  /* Ticker hidden on small screens */
+  .topbar-mid{display:none;}
+
+  /* Sidebar: collapsible drawer on mobile */
+  .sidebar{
+    position:fixed;top:52px;left:0;bottom:0;
+    width:260px;z-index:200;
+    transform:translateX(-100%);
+    border-right:1px solid var(--border);
+  }
+  .sidebar.open{transform:translateX(0);}
+  html[dir="rtl"] .sidebar{left:auto;right:0;transform:translateX(100%);}
+  html[dir="rtl"] .sidebar.open{transform:translateX(0);}
+
+  .mob-menu-btn{display:flex;align-items:center;gap:5px;}
+
+  /* Main content full width */
+  .main-content{min-height:70vh;overflow:visible;}
+  .content-scroll{overflow:visible;height:auto;}
+
+  /* Chat: slide-up from bottom on mobile */
+  .chat-panel{
+    position:fixed;bottom:0;left:0;right:0;
+    width:100%;height:72vh;
+    border-left:none;border-top:1px solid var(--border);border-radius:16px 16px 0 0;
+    z-index:200;transform:translateY(100%);
+    transition:transform .3s ease;
+  }
+  .chat-panel.open{transform:translateY(0);}
+  .chat-close-btn{display:flex;}
+  .mob-chat-btn{display:flex;}
+
+  /* Overlay for when drawer/chat is open */
+  .mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;}
+  .mob-overlay.show{display:block;}
+
+  /* Info grid on mobile */
+  .info-grid{grid-template-columns:repeat(2,1fr);}
+  .wl-grid{grid-template-columns:1fr;}
+  .news-grid{grid-template-columns:1fr;}
+  .signal-row{flex-direction:column;}
+}
+
+@media(max-width:480px){
+  .topbar{padding:0 10px;height:48px;}
+  .logo{font-size:1rem;}
+  .btn-sm{font-size:.65rem;padding:4px 8px;}
+  .dh-price{font-size:1.5rem;}
+  .dh-name{font-size:1.2rem;}
+  .content-scroll{padding:10px;}
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE OVERLAY -->
+<div class="mob-overlay" id="mobOverlay" onclick="closeMobileAll()"></div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-ov" id="dModal">
+  <div class="modal" style="max-width:520px;">
+    <div id="regView">
+      <div style="text-align:center;margin-bottom:18px;">
+        <div style="font-size:2rem;margin-bottom:6px;">📊</div>
+        <div style="font-size:1.15rem;font-weight:700;color:var(--text)" id="regTitle">Create Free Account</div>
+        <div style="font-size:.76rem;color:var(--sub);margin-top:4px" id="regSub">Get full access to AI market signals & analysis</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+        <input id="regName" type="text" placeholder="Full Name" style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:var(--font);font-size:.82rem;outline:none;transition:border-color .2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <input id="regEmail" type="email" placeholder="Email Address" style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:var(--font);font-size:.82rem;outline:none;transition:border-color .2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <!-- Disclaimer checkbox — MUST read & agree -->
+      <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:12px;margin-bottom:14px;">
+        <div style="font-size:.68rem;font-weight:700;color:var(--yellow);margin-bottom:8px;">⚠️ <span id="discTitle">Important Disclaimer — Please Read</span></div>
+        <div style="font-size:.7rem;color:rgba(241,245,249,.7);line-height:1.7;max-height:110px;overflow-y:auto;margin-bottom:10px;" id="discText">
+          <strong>StockSense AI</strong> provides AI-generated market analysis for <strong>informational and educational purposes only.</strong><br><br>
+          All signals and predictions are produced by AI and do <strong>NOT</strong> constitute financial advice. Past performance does not guarantee future results. You may lose capital.<br><br>
+          We are <strong>NOT licensed financial advisors</strong> and accept <strong>zero liability</strong> for any investment losses. Always consult a licensed professional before making investment decisions.
+        </div>
+        <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;">
+          <input type="checkbox" id="discCheck" style="margin-top:2px;accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
+          <span style="font-size:.72rem;color:var(--text);line-height:1.5;" id="discLabel">I have read and understood the disclaimer. I know this is NOT financial advice.</span>
+        </label>
+      </div>
+      <button id="regBtn" onclick="handleRegister()" style="width:100%;background:var(--accent);border:none;border-radius:9px;padding:11px;color:#fff;font-family:var(--font);font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;" id="mbtn">
+        🚀 <span id="regBtnTxt">Get Free Access</span>
+      </button>
+      <div style="text-align:center;margin-top:10px;font-size:.65rem;color:var(--sub)" id="regNote">Already have an account? <span onclick="showLogin()" style="color:var(--accent);cursor:pointer;text-decoration:underline;" id="loginLink">Sign in</span></div>
+    </div>
+
+    <!-- LOGIN VIEW -->
+    <div id="loginView" style="display:none;">
+      <div style="text-align:center;margin-bottom:18px;">
+        <div style="font-size:2rem;margin-bottom:6px;">🔑</div>
+        <div style="font-size:1.15rem;font-weight:700;color:var(--text)" id="loginTitle">Welcome Back</div>
+        <div style="font-size:.76rem;color:var(--sub);margin-top:4px" id="loginSub">Sign in to your StockSense AI account</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+        <input id="loginEmail" type="email" placeholder="Email Address" style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:var(--font);font-size:.82rem;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <input id="loginPass" type="password" placeholder="Password" style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:var(--font);font-size:.82rem;outline:none;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <button onclick="handleLogin()" style="width:100%;background:var(--accent);border:none;border-radius:9px;padding:11px;color:#fff;font-family:var(--font);font-weight:700;font-size:.88rem;cursor:pointer;margin-bottom:10px;" id="loginBtnEl">
+        🔑 <span id="loginBtnTxt">Sign In</span>
+      </button>
+      <div style="text-align:center;font-size:.65rem;color:var(--sub)" id="regLink2">Don't have an account? <span onclick="showRegister()" style="color:var(--accent);cursor:pointer;text-decoration:underline;" id="createLink">Create one free</span></div>
+    </div>
+
+    <!-- ERROR MSG -->
+    <div id="regError" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:8px;font-size:.72rem;color:var(--red);text-align:center;"></div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="mob-menu-btn" onclick="toggleSidebar()">☰ <span style="font-size:.7rem">Markets</span></button>
+    <div class="logo"><div class="logo-pulse"></div>StockSense <span style="color:var(--accent)">AI</span></div>
+  </div>
+  <div class="topbar-mid"><div class="ticker-bar"><div class="ticker-inner" id="tickerInner"></div></div></div>
+  <div class="topbar-right">
+    <div class="live-pill"><div class="lpd"></div><span id="liveLabel">LIVE</span></div>
+    <button class="btn-sm" onclick="toggleLang()" id="langBtn">🌐 عربي</button>
+    <button class="btn-sm" onclick="showRegister()" style="color:var(--green);border-color:rgba(16,185,129,.3);font-weight:700;" id="topRegBtn">🚀 <span id="topRegTxt">Register</span></button>
+    <button class="btn-sm" onclick="showLogin()" style="color:var(--accent);border-color:rgba(59,130,246,.3);" id="topLoginBtn">🔑 <span id="topLoginTxt">Sign In</span></button>
+    <div id="topUserBadge" style="display:none;font-size:.7rem;font-weight:600;padding:5px 10px;border-radius:8px;border:1px solid rgba(16,185,129,.3);color:var(--green);cursor:pointer;" onclick="handleLogout()">👤 <span id="topUserName"></span> · <span style="color:var(--sub);font-size:.62rem">Sign out</span></div>
+  </div>
+</div>
+
+<!-- DISCLAIMER STRIP -->
+<div class="disc-strip" id="discStrip">⚠️ AI Analysis Only — NOT Financial Advice — Past performance ≠ future results — StockSense AI bears NO liability for investment losses</div>
+
+<!-- BODY -->
+<div class="body-wrap">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-search">
+      <input class="s-inp" id="sideSearch" type="text" placeholder="Search any asset..." oninput="sideFilter(this.value)">
+    </div>
+    <div class="cat-tabs" id="catTabs"></div>
+    <div class="asset-list" id="assetList"></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="main-tabs">
+      <div class="mtab active" onclick="switchMainTab('detail',this)" id="mtab-detail">📊 <span id="mt0">Analysis</span></div>
+      <div class="mtab" onclick="switchMainTab('watchlist',this)" id="mtab-watchlist">⭐ <span id="mt1">Watchlist</span></div>
+      <div class="mtab" onclick="switchMainTab('news',this)" id="mtab-news">📰 <span id="mt2">News</span></div>
+    </div>
+    <div class="content-scroll" id="contentArea"></div>
+  </div>
+
+  <!-- CHAT PANEL -->
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-hdr">
+      <div class="chat-hdr-info">
+        <div class="chat-hdr-title">🤖 <span id="chatTitle">AI Advisor</span> <span class="ai-badge">CLAUDE AI</span></div>
+        <div class="chat-hdr-sub" id="chatSub">Powered by real AI • Ask anything</div>
+      </div>
+      <button class="chat-close-btn" onclick="closeMobileAll()">✕ Close</button>
+    </div>
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg msg-ai">
+        <div class="mlbl">StockSense AI ✨</div>
+        <span id="welcomeMsg">Hi! I'm your AI market advisor powered by <strong>Claude AI</strong>. I cover <strong>stocks, crypto, gold, silver, oil, wheat, coffee, sugar</strong> and more.<br><br>Click any asset on the left to see its analysis, or ask me directly below.<br><br>I'll give you: <strong style="color:var(--green)">BUY</strong>, <strong style="color:var(--yellow)">WAIT</strong>, or <strong style="color:var(--red)">AVOID</strong> signals with real reasoning.<br><br><span style="color:var(--yellow);font-size:.68rem">⚠️ AI analysis only. Not financial advice.</span></span>
+      </div>
+    </div>
+    <div class="chips-wrap" id="chipsWrap">
+      <div class="chip" onclick="sendChip(this)" data-en="Is Bitcoin going up?" data-ar="هل سيرتفع Bitcoin؟">Is Bitcoin going up?</div>
+      <div class="chip" onclick="sendChip(this)" data-en="Should I buy gold now?" data-ar="هل أشتري الذهب الآن؟">Buy gold now?</div>
+      <div class="chip" onclick="sendChip(this)" data-en="Best asset to buy today?" data-ar="أفضل أصل للشراء اليوم؟">Best buy today?</div>
+      <div class="chip" onclick="sendChip(this)" data-en="Explain stock market basics" data-ar="اشرح أساسيات سوق الأسهم">Market basics?</div>
+    </div>
+    <div class="chat-foot">
+      <div class="chat-disc-txt" id="chatDisc">AI analysis only. Not financial advice.</div>
+      <div class="chat-row">
+        <input class="chat-inp" id="chatInp" type="text" placeholder="Ask about any market..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="send-btn" id="sendBtn" onclick="sendMsg()">➤</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Mobile Chat Button -->
+<button class="mob-chat-btn" id="mobChatBtn" onclick="toggleMobileChat()">🤖</button>
+
+<script>
+let lang='en', selectedAsset=null, activeMainTab='detail', watchlist=new Set(), activeCat='All';
+let chatHistory=[];
+let isSending=false;
+
+// ══════════════════════════════════════════════
+// ALL ASSETS DATA
+// ══════════════════════════════════════════════
+const assets = [
+  // ── US TECH STOCKS ──────────────────────────────────────────────
+  {id:'nvda',sym:'NVDA',name:'NVIDIA',cat:'Stocks',icon:'🖥️',color:'#10b981',price:875.40,chp:0,hist:[620,680,710,740,780,820,850,875],
+   sig:'BUY',conf:82,target:'$970',sl:'$815',vol:'HIGH',
+   pred_en:'AI chip demand at record highs. Expected 12–18% rise in 4–8 weeks.',pred_ar:'الطلب على رقائق الذكاء الاصطناعي في أعلى مستوياته.',
+   adv_en:'✅ BUY. Entry $850–876. Target $970. Stop-loss $815.',adv_ar:'✅ اشترِ. الهدف $970.',
+   explain_en:'NVIDIA makes chips that power every AI system. Demand is at record highs.',explain_ar:'NVIDIA تصنع الرقائق التي تشغّل كل أنظمة الذكاء الاصطناعي.'},
+  {id:'msft',sym:'MSFT',name:'Microsoft',cat:'Stocks',icon:'🪟',color:'#3b82f6',price:415.80,chp:0,hist:[370,380,390,400,405,412,415,416],
+   sig:'BUY',conf:78,target:'$452',sl:'$398',vol:'MEDIUM',
+   pred_en:'Azure cloud + AI Copilot driving strong growth. Target $445–460.',pred_ar:'Azure وCopilot يدفعان النمو.',
+   adv_en:'✅ BUY. Target $452. Stop-loss $398.',adv_ar:'✅ اشترِ. الهدف $452.',
+   explain_en:'Microsoft owns Windows, Office, Azure cloud and ChatGPT partnership.',explain_ar:'Microsoft تمتلك Windows وOffice وAzure وشراكة ChatGPT.'},
+  {id:'meta',sym:'META',name:'Meta',cat:'Stocks',icon:'🔵',color:'#1d9bf0',price:512.30,chp:0,hist:[390,420,450,470,485,495,508,512],
+   sig:'BUY',conf:76,target:'$558',sl:'$488',vol:'MEDIUM',
+   pred_en:'Ad revenue growing, AI boosting engagement. Target $550–580.',pred_ar:'إيرادات الإعلانات تنمو والذكاء الاصطناعي يعزز التفاعل.',
+   adv_en:'✅ BUY. Target $558. Stop-loss $488.',adv_ar:'✅ اشترِ. الهدف $558.',
+   explain_en:'Meta owns Facebook, Instagram and WhatsApp. AI is massively boosting ad revenue.',explain_ar:'Meta تمتلك Facebook وInstagram وWhatsApp.'},
+  {id:'tsla',sym:'TSLA',name:'Tesla',cat:'Stocks',icon:'⚡',color:'#ef4444',price:198.50,chp:0,hist:[260,245,230,220,210,205,200,198],
+   sig:'SELL',conf:74,target:'$168',sl:'N/A',vol:'HIGH',
+   pred_en:'Chinese EV competition hurting Tesla badly. Expected fall to $165–175.',pred_ar:'المنافسة الصينية تضر Tesla بشدة.',
+   adv_en:'🔴 AVOID. If you own shares, consider selling.',adv_ar:'🔴 تجنب. إذا كنت تمتلك أسهماً فكر في البيع.',
+   explain_en:'Tesla makes EVs but Chinese rivals like BYD are taking market share fast.',explain_ar:'Tesla تصنع السيارات الكهربائية لكن المنافسين الصينيين يسرقون حصتها.'},
+  {id:'amzn',sym:'AMZN',name:'Amazon',cat:'Stocks',icon:'📦',color:'#f97316',price:186.60,chp:0,hist:[155,162,168,172,178,182,185,186],
+   sig:'BUY',conf:75,target:'$210',sl:'$175',vol:'MEDIUM',
+   pred_en:'AWS cloud growing + retail profitability improving. Target $200–215.',pred_ar:'AWS ينمو والربحية في التجزئة تتحسن.',
+   adv_en:'✅ BUY. Target $210. Stop-loss $175.',adv_ar:'✅ اشترِ. الهدف $210.',
+   explain_en:'Amazon runs the world\'s biggest online store AND AWS cloud platform.',explain_ar:'Amazon تدير أكبر متجر إلكتروني في العالم ومنصة AWS السحابية.'},
+  {id:'aapl',sym:'AAPL',name:'Apple',cat:'Stocks',icon:'🍎',color:'#94a3b8',price:189.30,chp:0,hist:[170,175,178,180,183,186,188,189],
+   sig:'WAIT',conf:60,target:'$205',sl:'$178',vol:'LOW',
+   pred_en:'iPhone sales stable. AI features in iOS could be catalyst. No rush.',pred_ar:'مبيعات iPhone مستقرة. ميزات AI في iOS قد تكون المحفز.',
+   adv_en:'🟡 WAIT. Good long-term hold but no strong short-term catalyst.',adv_ar:'🟡 انتظر. حيازة طويلة الأمد جيدة لكن لا محفز قصير المدى.',
+   explain_en:'Apple makes iPhone, Mac, iPad and runs the App Store. One of the most profitable companies ever.',explain_ar:'Apple تصنع iPhone وMac وiPad وتدير App Store.'},
+  {id:'googl',sym:'GOOGL',name:'Alphabet',cat:'Stocks',icon:'🔍',color:'#4285f4',price:175.20,chp:0,hist:[140,148,155,160,165,169,172,175],
+   sig:'BUY',conf:72,target:'$195',sl:'$162',vol:'MEDIUM',
+   pred_en:'Google Search + YouTube + Cloud all growing. Gemini AI competitive.',pred_ar:'Google Search وYouTube والسحابة كلها تنمو.',
+   adv_en:'✅ BUY. Target $195. Stop-loss $162.',adv_ar:'✅ اشترِ. الهدف $195.',
+   explain_en:'Alphabet owns Google Search, YouTube, Android, Google Cloud and Waymo.',explain_ar:'Alphabet تمتلك Google وYouTube وAndroid وGoogle Cloud.'},
+  {id:'nflx',sym:'NFLX',name:'Netflix',cat:'Stocks',icon:'🎬',color:'#dc2626',price:628.40,chp:0,hist:[480,510,540,565,585,605,618,628],
+   sig:'BUY',conf:68,target:'$680',sl:'$590',vol:'MEDIUM',
+   pred_en:'Password sharing crackdown working. Subscriber growth strong. Target $680.',pred_ar:'حملة مشاركة كلمات المرور تعمل. نمو المشتركين قوي.',
+   adv_en:'✅ BUY. Subscriber growth beating expectations. Target $680.',adv_ar:'✅ اشترِ. نمو المشتركين يتجاوز التوقعات. الهدف $680.',
+   explain_en:'Netflix is the world\'s biggest streaming platform with 270M+ subscribers.',explain_ar:'Netflix أكبر منصة بث في العالم بأكثر من 270 مليون مشترك.'},
+  {id:'amd',sym:'AMD',name:'AMD',cat:'Stocks',icon:'🔴',color:'#ef4444',price:168.20,chp:0,hist:[120,130,140,148,155,160,165,168],
+   sig:'BUY',conf:70,target:'$195',sl:'$155',vol:'HIGH',
+   pred_en:'AI GPU competition to NVIDIA. Growing data center revenue. Target $195.',pred_ar:'منافس GPU للذكاء الاصطناعي لـNVIDIA. إيرادات مراكز البيانات تنمو.',
+   adv_en:'✅ BUY. Best alternative to NVDA at lower price. Target $195.',adv_ar:'✅ اشترِ. أفضل بديل لـNVDA بسعر أقل. الهدف $195.',
+   explain_en:'AMD makes CPUs and GPUs that compete with Intel and NVIDIA. Growing fast in AI chips.',explain_ar:'AMD تصنع معالجات وبطاقات رسومات تنافس Intel وNVIDIA.'},
+  {id:'crm',sym:'CRM',name:'Salesforce',cat:'Stocks',icon:'☁️',color:'#1d9bf0',price:298.50,chp:0,hist:[240,252,262,270,278,285,292,298],
+   sig:'BUY',conf:65,target:'$330',sl:'$280',vol:'MEDIUM',
+   pred_en:'AI features driving enterprise software growth. Target $330.',pred_ar:'ميزات الذكاء الاصطناعي تدفع نمو برامج الشركات.',
+   adv_en:'✅ BUY. AI integration boosting enterprise value. Target $330.',adv_ar:'✅ اشترِ. الذكاء الاصطناعي يعزز قيمة المؤسسات. الهدف $330.',
+   explain_en:'Salesforce is the world\'s #1 CRM software used by companies to manage customers.',explain_ar:'Salesforce هو برنامج CRM الأول عالمياً لإدارة العملاء.'},
+  {id:'baba',sym:'BABA',name:'Alibaba',cat:'Stocks',icon:'🛒',color:'#f59e0b',price:75.20,chp:0,hist:[100,92,88,84,80,78,76,75],
+   sig:'SELL',conf:65,target:'Declining',sl:'N/A',vol:'HIGH',
+   pred_en:'China regulatory pressure + US tensions keeping price down.',pred_ar:'الضغط التنظيمي الصيني والتوترات مع أمريكا يكبحان السعر.',
+   adv_en:'🔴 AVOID. Geopolitical risk too high.',adv_ar:'🔴 تجنب. المخاطر الجيوسياسية مرتفعة جداً.',
+   explain_en:'Alibaba is China\'s Amazon but government crackdowns make it very risky.',explain_ar:'Alibaba هي أمازون الصين لكن التدخل الحكومي يجعلها محفوفة بالمخاطر.'},
+  {id:'jpm',sym:'JPM',name:'JPMorgan',cat:'Stocks',icon:'🏦',color:'#1e40af',price:198.40,chp:0,hist:[168,172,178,182,186,190,194,198],
+   sig:'BUY',conf:67,target:'$215',sl:'$188',vol:'MEDIUM',
+   pred_en:'High interest rates boosting bank profits. Strong balance sheet.',pred_ar:'أسعار الفائدة المرتفعة تعزز أرباح البنوك.',
+   adv_en:'✅ BUY. Best-run bank in the world. Benefits from high rates. Target $215.',adv_ar:'✅ اشترِ. أفضل إدارة بنك في العالم. يستفيد من أسعار الفائدة.',
+   explain_en:'JPMorgan is the largest US bank. High interest rates mean banks earn more on loans.',explain_ar:'JPMorgan أكبر بنك أمريكي. أسعار الفائدة المرتفعة تعني أرباحاً أكثر.'},
+  {id:'v',sym:'V',name:'Visa',cat:'Stocks',icon:'💳',color:'#1d4ed8',price:278.60,chp:0,hist:[240,248,255,260,265,270,274,278],
+   sig:'BUY',conf:69,target:'$300',sl:'$265',vol:'LOW',
+   pred_en:'Global payment volumes growing. Travel recovery boosting transactions.',pred_ar:'أحجام الدفع العالمية تنمو. انتعاش السفر يعزز المعاملات.',
+   adv_en:'✅ BUY. Extremely stable business. Every swipe earns them money. Target $300.',adv_ar:'✅ اشترِ. عمل مستقر للغاية. كل معاملة تجني لهم المال. الهدف $300.',
+   explain_en:'Visa processes payments. They don\'t lend money — they just take a small cut of every transaction on earth.',explain_ar:'Visa تعالج المدفوعات. لا تقرض المال بل تأخذ نسبة صغيرة من كل معاملة.'},
+  {id:'wmt',sym:'WMT',name:'Walmart',cat:'Stocks',icon:'🛒',color:'#0ea5e9',price:68.20,chp:0,hist:[54,56,58,60,62,64,66,68],
+   sig:'BUY',conf:63,target:'$75',sl:'$64',vol:'LOW',
+   pred_en:'Strong consumer spending + e-commerce growth. Defensive stock.',pred_ar:'إنفاق المستهلكين القوي + نمو التجارة الإلكترونية.',
+   adv_en:'✅ BUY. Defensive stock in uncertain times. Target $75.',adv_ar:'✅ اشترِ. سهم دفاعي في الأوقات الغامضة. الهدف $75.',
+   explain_en:'Walmart is the world\'s biggest retailer. People keep shopping there no matter the economy.',explain_ar:'Walmart أكبر تاجر تجزئة في العالم. الناس تتسوق هناك بغض النظر عن الاقتصاد.'},
+  {id:'dis',sym:'DIS',name:'Disney',cat:'Stocks',icon:'🏰',color:'#8b5cf6',price:112.40,chp:0,hist:[88,92,96,100,104,107,110,112],
+   sig:'WAIT',conf:54,target:'$125',sl:'$104',vol:'MEDIUM',
+   pred_en:'Streaming turning profitable. Parks doing well. But debt is a concern.',pred_ar:'البث يصبح مربحاً. المنتزهات تعمل بشكل جيد. لكن الديون قلق.',
+   adv_en:'🟡 WAIT. Turnaround in progress but not confirmed yet.',adv_ar:'🟡 انتظر. التحول جارٍ لكن لم يتأكد بعد.',
+   explain_en:'Disney owns Marvel, Star Wars, Pixar, Disney+ and theme parks worldwide.',explain_ar:'Disney تمتلك Marvel وStar Wars وPixar وDisney+ والمنتزهات الترفيهية.'},
+  {id:'uber',sym:'UBER',name:'Uber',cat:'Stocks',icon:'🚗',color:'#000000',price:78.90,chp:0,hist:[58,62,66,68,71,74,76,78],
+   sig:'BUY',conf:66,target:'$90',sl:'$72',vol:'MEDIUM',
+   pred_en:'First full year of profitability. Delivery growing fast. Target $90.',pred_ar:'أول سنة ربحية كاملة. التوصيل ينمو بسرعة.',
+   adv_en:'✅ BUY. Finally profitable and growing. Target $90.',adv_ar:'✅ اشترِ. مربحة أخيراً وتنمو. الهدف $90.',
+   explain_en:'Uber dominates ride-hailing globally and Uber Eats is the #2 food delivery app.',explain_ar:'Uber تهيمن على قطاع توصيل الركاب عالمياً وUber Eats ثاني تطبيق توصيل طعام.'},
+  {id:'pypl',sym:'PYPL',name:'PayPal',cat:'Stocks',icon:'🔷',color:'#003087',price:62.40,chp:0,hist:[90,82,78,74,70,67,64,62],
+   sig:'WAIT',conf:50,target:'$70',sl:'$56',vol:'HIGH',
+   pred_en:'Struggling with competition from Apple Pay, Google Pay. Needs turnaround.',pred_ar:'يعاني من المنافسة مع Apple Pay وGoogle Pay. يحتاج تحولاً.',
+   adv_en:'🟡 WAIT. New CEO making changes but too early to buy.',adv_ar:'🟡 انتظر. الرئيس التنفيذي الجديد يجري تغييرات لكن مبكر جداً للشراء.',
+   explain_en:'PayPal processes online payments but is losing ground to Apple Pay and Google Pay.',explain_ar:'PayPal يعالج المدفوعات عبر الإنترنت لكنه يخسر أمام Apple Pay وGoogle Pay.'},
+  {id:'intc',sym:'INTC',name:'Intel',cat:'Stocks',icon:'💻',color:'#0071c5',price:30.20,chp:0,hist:[50,46,42,40,38,35,32,30],
+   sig:'SELL',conf:68,target:'$25',sl:'N/A',vol:'HIGH',
+   pred_en:'Losing chip market share to AMD and NVIDIA. Manufacturing delays.',pred_ar:'يخسر حصة سوق الرقائق لـAMD وNVIDIA.',
+   adv_en:'🔴 AVOID. Structural decline. Better chip alternatives exist.',adv_ar:'🔴 تجنب. انخفاض هيكلي. بدائل رقائق أفضل موجودة.',
+   explain_en:'Intel used to dominate chips but AMD and NVIDIA have taken huge market share.',explain_ar:'Intel كانت تهيمن على الرقائق لكن AMD وNVIDIA أخذت حصة سوقية كبيرة.'},
+
+  // ── FOREX PAIRS ──────────────────────────────────────────────────
+  {id:'eurusd',sym:'EUR/USD',name:'Euro / US Dollar',cat:'Forex',icon:'💶',color:'#3b82f6',price:1.0842,chp:0,hist:[1.07,1.075,1.078,1.080,1.082,1.083,1.084,1.0842],
+   sig:'WAIT',conf:52,target:'1.0950',sl:'1.0720',vol:'MEDIUM',
+   pred_en:'Range-bound near 1.08–1.10. Fed vs ECB rate decisions are the key driver.',pred_ar:'في نطاق 1.08-1.10. قرارات الفيدرالي والبنك المركزي الأوروبي هي المحرك.',
+   adv_en:'🟡 WAIT. No strong directional bias. Watch central bank news.',adv_ar:'🟡 انتظر. لا اتجاه قوي. راقب أخبار البنوك المركزية.',
+   explain_en:'EUR/USD is the most traded currency pair. It shows how many dollars one euro buys.',explain_ar:'EUR/USD هو أكثر أزواج العملات تداولاً. يُظهر كم دولاراً يشتري اليورو الواحد.'},
+  {id:'gbpusd',sym:'GBP/USD',name:'Pound / US Dollar',cat:'Forex',icon:'💷',color:'#8b5cf6',price:1.2680,chp:0,hist:[1.24,1.248,1.254,1.258,1.262,1.264,1.266,1.268],
+   sig:'WAIT',conf:50,target:'1.2800',sl:'1.2550',vol:'MEDIUM',
+   pred_en:'UK inflation easing slowly. BOE may cut rates. Sterling under mild pressure.',pred_ar:'التضخم البريطاني يتراجع ببطء. بنك إنجلترا قد يخفض الفائدة.',
+   adv_en:'🟡 WAIT. Mixed signals. Watch UK inflation data.',adv_ar:'🟡 انتظر. إشارات متضاربة. راقب بيانات التضخم البريطاني.',
+   explain_en:'GBP/USD shows how many dollars one British pound buys. Called "Cable" by traders.',explain_ar:'GBP/USD يُظهر كم دولاراً يشتري الجنيه الإسترليني. يُسمى "الكابل" من قبل المتداولين.'},
+  {id:'usdjpy',sym:'USD/JPY',name:'US Dollar / Yen',cat:'Forex',icon:'💴',color:'#ef4444',price:151.80,chp:0,hist:[148,149,150,150.5,151,151.2,151.5,151.8],
+   sig:'SELL',conf:64,target:'145.00',sl:'154.00',vol:'HIGH',
+   pred_en:'BOJ likely to raise rates. Yen expected to strengthen. USD/JPY to fall.',pred_ar:'بنك اليابان من المرجح رفع الفائدة. الين يتوقع أن يتقوى.',
+   adv_en:'🔴 SELL/SHORT. Yen intervention risk high. Target 145.',adv_ar:'🔴 بيع. خطر تدخل الين مرتفع. الهدف 145.',
+   explain_en:'USD/JPY shows how many yen one dollar buys. High number means dollar is strong vs Japan.',explain_ar:'USD/JPY يُظهر كم ينٍ يشتري الدولار. الرقم المرتفع يعني الدولار قوي مقابل اليابان.'},
+  {id:'usdchf',sym:'USD/CHF',name:'US Dollar / Swiss Franc',cat:'Forex',icon:'🇨🇭',color:'#dc2626',price:0.9020,chp:0,hist:[0.915,0.912,0.910,0.908,0.906,0.904,0.903,0.902],
+   sig:'WAIT',conf:49,target:'0.8900',sl:'0.9150',vol:'MEDIUM',
+   pred_en:'Swiss franc is a safe haven. Dollar weakness could push this lower.',pred_ar:'الفرنك السويسري ملاذ آمن. ضعف الدولار قد يدفعه لأسفل.',
+   adv_en:'🟡 WAIT. Safe haven demand unclear. No strong signal.',adv_ar:'🟡 انتظر. طلب الملاذ الآمن غير واضح. لا إشارة قوية.',
+   explain_en:'USD/CHF shows how many Swiss Francs one dollar buys. CHF is considered ultra-safe.',explain_ar:'USD/CHF يُظهر كم فرنكاً سويسرياً يشتري الدولار. الفرنك يُعتبر آمناً للغاية.'},
+  {id:'audusd',sym:'AUD/USD',name:'Aussie Dollar / USD',cat:'Forex',icon:'🦘',color:'#f59e0b',price:0.6542,chp:0,hist:[0.645,0.648,0.650,0.651,0.652,0.653,0.654,0.6542],
+   sig:'WAIT',conf:51,target:'0.6700',sl:'0.6400',vol:'MEDIUM',
+   pred_en:'China recovery could boost AUD. Commodity prices are key driver.',pred_ar:'انتعاش الصين قد يعزز الدولار الأسترالي. أسعار السلع هي المحرك الرئيسي.',
+   adv_en:'🟡 WAIT. Tied to China economy. Watch China data.',adv_ar:'🟡 انتظر. مرتبط بالاقتصاد الصيني. راقب بيانات الصين.',
+   explain_en:'Australian Dollar is closely tied to commodity prices (gold, iron ore) and China trade.',explain_ar:'الدولار الأسترالي مرتبط ارتباطاً وثيقاً بأسعار السلع والتجارة مع الصين.'},
+  {id:'usdcad',sym:'USD/CAD',name:'US Dollar / Canadian Dollar',cat:'Forex',icon:'🍁',color:'#dc2626',price:1.3580,chp:0,hist:[1.345,1.348,1.350,1.352,1.354,1.356,1.357,1.358],
+   sig:'WAIT',conf:48,target:'1.3400',sl:'1.3700',vol:'MEDIUM',
+   pred_en:'Oil price changes heavily affect CAD. Watch crude oil news.',pred_ar:'تغيرات أسعار النفط تؤثر بشدة على الدولار الكندي.',
+   adv_en:'🟡 WAIT. Linked to oil prices. No clear direction.',adv_ar:'🟡 انتظر. مرتبط بأسعار النفط. لا اتجاه واضح.',
+   explain_en:'Canadian Dollar is heavily tied to oil prices since Canada is a major oil exporter.',explain_ar:'الدولار الكندي مرتبط بأسعار النفط لأن كندا مُصدِّر رئيسي.'},
+  {id:'nzdusd',sym:'NZD/USD',name:'NZ Dollar / USD',cat:'Forex',icon:'🥝',color:'#10b981',price:0.6098,chp:0,hist:[0.600,0.602,0.604,0.606,0.607,0.608,0.609,0.6098],
+   sig:'WAIT',conf:47,target:'0.6250',sl:'0.5950',vol:'MEDIUM',
+   pred_en:'RBNZ rate decisions key. Dairy and agriculture exports drive NZD.',pred_ar:'قرارات بنك نيوزيلندا المركزي مهمة. صادرات الألبان والزراعة تحرك NZD.',
+   adv_en:'🟡 WAIT. Small market, less liquidity. Better opportunities elsewhere.',adv_ar:'🟡 انتظر. سوق صغير وسيولة أقل.',
+   explain_en:'New Zealand Dollar is linked to agriculture, dairy exports and China trade.',explain_ar:'الدولار النيوزيلندي مرتبط بالزراعة وصادرات الألبان والتجارة مع الصين.'},
+  {id:'eurgbp',sym:'EUR/GBP',name:'Euro / British Pound',cat:'Forex',icon:'🇪🇺',color:'#3b82f6',price:0.8558,chp:0,hist:[0.850,0.852,0.853,0.854,0.855,0.855,0.856,0.8558],
+   sig:'WAIT',conf:46,target:'0.8650',sl:'0.8450',vol:'LOW',
+   pred_en:'ECB vs BOE rate differential drives this pair.',pred_ar:'الفرق بين أسعار فائدة البنك المركزي الأوروبي وبنك إنجلترا يحرك هذا الزوج.',
+   adv_en:'🟡 WAIT. Slow moving pair. Watch ECB/BOE rate decisions.',adv_ar:'🟡 انتظر. زوج بطيء الحركة. راقب قرارات الفائدة.',
+   explain_en:'EUR/GBP shows how many British pounds one euro buys. Both are European currencies.',explain_ar:'EUR/GBP يُظهر كم جنيهٍ إسترليني يشتري اليورو.'},
+  {id:'usdzar',sym:'USD/ZAR',name:'USD / South African Rand',cat:'Forex',icon:'🌍',color:'#10b981',price:18.65,chp:0,hist:[18.2,18.3,18.4,18.5,18.5,18.6,18.6,18.65],
+   sig:'SELL',conf:55,target:'17.50',sl:'19.50',vol:'VERY HIGH',
+   pred_en:'ZAR under pressure from load-shedding and political risks in South Africa.',pred_ar:'الراند تحت الضغط من انقطاع الكهرباء والمخاطر السياسية في جنوب أفريقيا.',
+   adv_en:'🔴 AVOID unless expert. Very volatile emerging market currency.',adv_ar:'🔴 تجنب إلا إذا كنت خبيراً. عملة أسواق ناشئة متقلبة جداً.',
+   explain_en:'South African Rand. Affected by gold prices, political stability and power supply issues.',explain_ar:'الراند جنوب الأفريقي. يتأثر بأسعار الذهب والاستقرار السياسي.'},
+  {id:'usdtry',sym:'USD/TRY',name:'USD / Turkish Lira',cat:'Forex',icon:'🇹🇷',color:'#dc2626',price:32.15,chp:0,hist:[27,28,29,30,31,31.5,32,32.15],
+   sig:'SELL',conf:70,target:'Declining',sl:'N/A',vol:'VERY HIGH',
+   pred_en:'Turkish lira in long-term decline due to very high inflation.',pred_ar:'الليرة التركية في تراجع طويل الأمد بسبب التضخم المرتفع جداً.',
+   adv_en:'🔴 AVOID holding TRY. Inflation eroding value constantly.',adv_ar:'🔴 تجنب الاحتفاظ بالليرة التركية. التضخم يآكل قيمتها باستمرار.',
+   explain_en:'Turkish Lira has been declining for years due to very high inflation and unorthodox monetary policy.',explain_ar:'الليرة التركية تتراجع منذ سنوات بسبب التضخم المرتفع جداً.'},
+  {id:'usdinr',sym:'USD/INR',name:'USD / Indian Rupee',cat:'Forex',icon:'🇮🇳',color:'#f97316',price:83.42,chp:0,hist:[82.8,82.9,83.0,83.1,83.2,83.3,83.4,83.42],
+   sig:'WAIT',conf:50,target:'82.00',sl:'85.00',vol:'LOW',
+   pred_en:'RBI managing rupee carefully. India economy growing strongly.',pred_ar:'بنك الاحتياطي الهندي يدير الروبية بعناية. الاقتصاد الهندي ينمو بقوة.',
+   adv_en:'🟡 WAIT. Relatively stable. India growth story is long-term positive.',adv_ar:'🟡 انتظر. مستقرة نسبياً. قصة نمو الهند إيجابية على المدى البعيد.',
+   explain_en:'Indian Rupee. India is one of the world\'s fastest growing major economies.',explain_ar:'الروبية الهندية. الهند من أسرع الاقتصادات الكبرى نمواً في العالم.'},
+  {id:'usdaed',sym:'USD/AED',name:'USD / UAE Dirham',cat:'Forex',icon:'🇦🇪',color:'#10b981',price:3.6725,chp:0,hist:[3.6725,3.6725,3.6725,3.6725,3.6725,3.6725,3.6725,3.6725],
+   sig:'WAIT',conf:99,target:'3.6725',sl:'N/A',vol:'VERY LOW',
+   pred_en:'UAE Dirham is pegged to USD at 3.6725. It never changes.',pred_ar:'الدرهم الإماراتي مربوط بالدولار عند 3.6725. لا يتغير أبداً.',
+   adv_en:'✅ Stable. Dirham is fully pegged to USD. Zero exchange rate risk.',adv_ar:'✅ مستقر. الدرهم مربوط بالكامل بالدولار. لا مخاطر سعر صرف.',
+   explain_en:'UAE Dirham is permanently pegged to the US Dollar. No volatility whatsoever.',explain_ar:'الدرهم الإماراتي مربوط بشكل دائم بالدولار الأمريكي. لا تقلبات على الإطلاق.'},
+  {id:'usdsau',sym:'USD/SAR',name:'USD / Saudi Riyal',cat:'Forex',icon:'🇸🇦',color:'#10b981',price:3.7500,chp:0,hist:[3.75,3.75,3.75,3.75,3.75,3.75,3.75,3.75],
+   sig:'WAIT',conf:99,target:'3.7500',sl:'N/A',vol:'VERY LOW',
+   pred_en:'Saudi Riyal is pegged to USD at 3.75. Extremely stable.',pred_ar:'الريال السعودي مربوط بالدولار عند 3.75. مستقر للغاية.',
+   adv_en:'✅ Stable. SAR pegged to USD. No exchange rate risk.',adv_ar:'✅ مستقر. الريال مربوط بالدولار. لا مخاطر.',
+   explain_en:'Saudi Riyal is pegged to the US Dollar since 1986. One of the most stable currencies.',explain_ar:'الريال السعودي مربوط بالدولار الأمريكي منذ 1986.'},
+
+  // ── CRYPTO ──────────────────────────────────────────────────────
+  {id:'btc',sym:'BTC',name:'Bitcoin',cat:'Crypto',icon:'₿',color:'#f59e0b',price:67240,chp:0,hist:[52000,55000,58000,60000,62000,64000,66000,67240],
+   sig:'BUY',conf:72,target:'$75,000',sl:'$60,000',vol:'HIGH',
+   pred_en:'Post-halving cycle historically bullish. Expected $72K–78K in 4–8 weeks.',pred_ar:'دورة ما بعد التنصيف صاعدة تاريخياً. يُتوقع 72K-78K$ في 4-8 أسابيع.',
+   adv_en:'✅ BUY. Bitcoin halving completed. Target $75K. Stop-loss $60K.',adv_ar:'✅ اشترِ. تنصيف Bitcoin اكتمل. الهدف $75K.',
+   explain_en:'Bitcoin is digital gold. The halving cuts new supply — less supply + same demand = higher prices.',explain_ar:'Bitcoin هو الذهب الرقمي. التنصيف يقلل الإمداد الجديد.'},
+  {id:'eth',sym:'ETH',name:'Ethereum',cat:'Crypto',icon:'⟠',color:'#8b5cf6',price:3520,chp:0,hist:[2800,2900,3000,3100,3200,3350,3450,3520],
+   sig:'BUY',conf:68,target:'$4,000',sl:'$3,100',vol:'HIGH',
+   pred_en:'ETF approval + staking demand growing. Target $3,800–4,200.',pred_ar:'موافقة ETF + طلب التخزين ينمو. الهدف 3,800-4,200$.',
+   adv_en:'✅ BUY. Target $4,000. Stop-loss $3,100.',adv_ar:'✅ اشترِ. الهدف $4,000.',
+   explain_en:'Ethereum is the platform most DeFi and NFT apps are built on.',explain_ar:'Ethereum هو المنصة التي تُبنى عليها معظم تطبيقات DeFi وNFT.'},
+  {id:'sol',sym:'SOL',name:'Solana',cat:'Crypto',icon:'◎',color:'#14b8a6',price:172.40,chp:0,hist:[110,125,138,148,158,163,168,172],
+   sig:'BUY',conf:66,target:'$200',sl:'$148',vol:'VERY HIGH',
+   pred_en:'Fastest growing blockchain. Strong developer activity. Target $190–220.',pred_ar:'أسرع بلوكتشين نمواً. نشاط مطورين قوي.',
+   adv_en:'✅ BUY. Target $200. Stop-loss $148.',adv_ar:'✅ اشترِ. الهدف $200.',
+   explain_en:'Solana is faster and cheaper than Ethereum. Many new crypto projects choose Solana.',explain_ar:'Solana أسرع وأرخص من Ethereum.'},
+  {id:'bnb',sym:'BNB',name:'BNB',cat:'Crypto',icon:'🟡',color:'#eab308',price:580.20,chp:0,hist:[420,450,480,500,520,545,570,580],
+   sig:'WAIT',conf:55,target:'$620',sl:'$520',vol:'HIGH',
+   pred_en:'Binance regulatory issues create uncertainty. Range-bound $550–620.',pred_ar:'مشاكل Binance التنظيمية تخلق غموضاً.',
+   adv_en:'🟡 WAIT. Regulatory risk clouds outlook.',adv_ar:'🟡 انتظر. المخاطر التنظيمية تغيم على التوقعات.',
+   explain_en:'BNB is Binance exchange\'s token. Price is directly tied to Binance\'s health as a company.',explain_ar:'BNB هو رمز منصة Binance. سعره مرتبط بصحة Binance كشركة.'},
+  {id:'xrp',sym:'XRP',name:'Ripple XRP',cat:'Crypto',icon:'💧',color:'#0ea5e9',price:0.5842,chp:0,hist:[0.45,0.48,0.50,0.52,0.54,0.56,0.57,0.5842],
+   sig:'BUY',conf:62,target:'$0.75',sl:'$0.48',vol:'HIGH',
+   pred_en:'SEC case resolution positive for XRP. Bank adoption growing. Target $0.75.',pred_ar:'حل قضية SEC إيجابي لـXRP. تبني البنوك ينمو.',
+   adv_en:'✅ BUY. Legal clarity improving. Target $0.75.',adv_ar:'✅ اشترِ. الوضوح القانوني يتحسن. الهدف $0.75.',
+   explain_en:'XRP is used by banks for fast international money transfers. Very fast and cheap transactions.',explain_ar:'XRP يُستخدم من البنوك للتحويلات الدولية السريعة.'},
+  {id:'ada',sym:'ADA',name:'Cardano',cat:'Crypto',icon:'🔵',color:'#3b82f6',price:0.4580,chp:0,hist:[0.38,0.39,0.40,0.42,0.43,0.44,0.45,0.458],
+   sig:'WAIT',conf:48,target:'$0.60',sl:'$0.38',vol:'HIGH',
+   pred_en:'Development progress slow. Waiting for major upgrade catalyst.',pred_ar:'تقدم التطوير بطيء. انتظار محفز ترقية رئيسي.',
+   adv_en:'🟡 WAIT. No strong catalyst. Better crypto opportunities available.',adv_ar:'🟡 انتظر. لا محفز قوي. فرص كريبتو أفضل متاحة.',
+   explain_en:'Cardano is a blockchain focused on scientific research and formal verification.',explain_ar:'Cardano هو بلوكتشين يركز على البحث العلمي والتحقق الرسمي.'},
+  {id:'doge',sym:'DOGE',name:'Dogecoin',cat:'Crypto',icon:'🐶',color:'#eab308',price:0.1612,chp:0,hist:[0.08,0.09,0.10,0.12,0.13,0.14,0.15,0.161],
+   sig:'WAIT',conf:40,target:'$0.25',sl:'$0.10',vol:'VERY HIGH',
+   pred_en:'Elon Musk tweets can move this unpredictably. Pure speculation.',pred_ar:'تغريدات Elon Musk يمكن أن تحركها بشكل غير متوقع. مضاربة بحتة.',
+   adv_en:'🟡 WAIT. Only small position for speculation. Never bet big on DOGE.',adv_ar:'🟡 انتظر. مركز صغير فقط للمضاربة. لا تراهن كثيراً على DOGE.',
+   explain_en:'Dogecoin started as a joke but became real. Heavily influenced by Elon Musk tweets.',explain_ar:'Dogecoin بدأت كنكتة لكنها أصبحت حقيقية. تتأثر بشدة بتغريدات Elon Musk.'},
+  {id:'avax',sym:'AVAX',name:'Avalanche',cat:'Crypto',icon:'🔺',color:'#ef4444',price:38.20,chp:0,hist:[28,30,32,33,35,36,37,38.2],
+   sig:'BUY',conf:60,target:'$48',sl:'$32',vol:'VERY HIGH',
+   pred_en:'Fast transaction speed + DeFi growth. Target $48.',pred_ar:'سرعة معاملات عالية + نمو DeFi.',
+   adv_en:'✅ BUY. Strong tech fundamentals. Target $48.',adv_ar:'✅ اشترِ. أساسيات تقنية قوية. الهدف $48.',
+   explain_en:'Avalanche is a very fast blockchain for DeFi apps. Competes with Ethereum and Solana.',explain_ar:'Avalanche بلوكتشين سريع جداً لتطبيقات DeFi.'},
+  {id:'dot',sym:'DOT',name:'Polkadot',cat:'Crypto',icon:'⚫',color:'#ec4899',price:7.82,chp:0,hist:[5.5,5.8,6.2,6.5,7.0,7.2,7.5,7.82],
+   sig:'WAIT',conf:50,target:'$10',sl:'$6.50',vol:'HIGH',
+   pred_en:'Parachain ecosystem developing slowly. No strong near-term catalyst.',pred_ar:'نظام parachain يتطور ببطء.',
+   adv_en:'🟡 WAIT. Long-term project. No urgency to buy now.',adv_ar:'🟡 انتظر. مشروع طويل الأمد. لا إلحاح للشراء الآن.',
+   explain_en:'Polkadot connects different blockchains together — like the internet for blockchains.',explain_ar:'Polkadot يربط بلوكتشين مختلفة ببعضها.'},
+  {id:'link',sym:'LINK',name:'Chainlink',cat:'Crypto',icon:'🔗',color:'#3b82f6',price:15.40,chp:0,hist:[10,11,12,13,13.5,14,14.8,15.4],
+   sig:'BUY',conf:63,target:'$20',sl:'$12.50',vol:'HIGH',
+   pred_en:'DeFi growth requires Chainlink oracles. Essential infrastructure. Target $20.',pred_ar:'نمو DeFi يتطلب أوراكل Chainlink. بنية تحتية أساسية.',
+   adv_en:'✅ BUY. Critical DeFi infrastructure. Target $20.',adv_ar:'✅ اشترِ. بنية تحتية DeFi حيوية. الهدف $20.',
+   explain_en:'Chainlink connects blockchains to real-world data. Without it, most DeFi apps can\'t work.',explain_ar:'Chainlink يربط البلوكتشين ببيانات العالم الحقيقي.'},
+  {id:'ltc',sym:'LTC',name:'Litecoin',cat:'Crypto',icon:'Ł',color:'#94a3b8',price:84.20,chp:0,hist:[65,68,72,75,78,80,82,84.2],
+   sig:'WAIT',conf:45,target:'$100',sl:'$72',vol:'HIGH',
+   pred_en:'The "silver to Bitcoin\'s gold". Steady but not exciting.',pred_ar:'"فضة البيتكوين". مستقر لكن ليس مثيراً.',
+   adv_en:'🟡 WAIT. Solid but no strong growth story vs BTC/ETH.',adv_ar:'🟡 انتظر. متين لكن لا قصة نمو قوية مقابل BTC/ETH.',
+   explain_en:'Litecoin is like Bitcoin but faster and cheaper. One of the oldest cryptocurrencies.',explain_ar:'Litecoin مثل Bitcoin لكن أسرع وأرخص.'},
+
+  // ── INDICES ──────────────────────────────────────────────────────
+  {id:'us500',sym:'US500',name:'S&P 500',cat:'Indices',icon:'🇺🇸',color:'#3b82f6',price:5234,chp:0,hist:[4800,4900,4980,5050,5100,5150,5200,5234],
+   sig:'BUY',conf:68,target:'5500',sl:'5000',vol:'MEDIUM',
+   pred_en:'US economy resilient. AI boom driving tech stocks higher. Target 5,500.',pred_ar:'الاقتصاد الأمريكي صامد. طفرة الذكاء الاصطناعي ترفع الأسهم التقنية.',
+   adv_en:'✅ BUY. Best way to invest in entire US economy. Target 5,500.',adv_ar:'✅ اشترِ. أفضل طريقة للاستثمار في الاقتصاد الأمريكي بأكمله.',
+   explain_en:'S&P 500 tracks 500 biggest US companies. When it goes up, the US economy is doing well.',explain_ar:'S&P 500 يتتبع أكبر 500 شركة أمريكية.'},
+  {id:'nasdaq',sym:'NAS100',name:'NASDAQ 100',cat:'Indices',icon:'💻',color:'#8b5cf6',price:18342,chp:0,hist:[16000,16500,17000,17300,17700,18000,18200,18342],
+   sig:'BUY',conf:71,target:'19500',sl:'17500',vol:'HIGH',
+   pred_en:'Tech-heavy index. AI boom is the biggest tailwind. Target 19,500.',pred_ar:'مؤشر التكنولوجيا. طفرة الذكاء الاصطناعي هي الرياح الخلفية الكبرى.',
+   adv_en:'✅ BUY. AI mega-trend drives this index. Target 19,500.',adv_ar:'✅ اشترِ. الاتجاه الكبير للذكاء الاصطناعي يحرك هذا المؤشر.',
+   explain_en:'NASDAQ 100 is 100 biggest tech companies. NVDA, MSFT, AAPL, META, AMZN — all in here.',explain_ar:'NASDAQ 100 هو أكبر 100 شركة تقنية. NVDA وMSFT وAAPL كلها هنا.'},
+  {id:'dow',sym:'US30',name:'Dow Jones',cat:'Indices',icon:'🏭',color:'#f59e0b',price:39156,chp:0,hist:[36000,36800,37400,37900,38400,38800,39000,39156],
+   sig:'WAIT',conf:57,target:'41000',sl:'37500',vol:'MEDIUM',
+   pred_en:'Industrial stocks more sensitive to interest rates. Watch Fed decisions.',pred_ar:'الأسهم الصناعية أكثر حساسية لأسعار الفائدة.',
+   adv_en:'🟡 WAIT. Less tech exposure than S&P. More sensitive to rate changes.',adv_ar:'🟡 انتظر. تعرض أقل للتكنولوجيا من S&P. أكثر حساسية لتغيرات الفائدة.',
+   explain_en:'Dow Jones tracks 30 major US industrial companies like Boeing, Coca-Cola, and Goldman Sachs.',explain_ar:'Dow Jones يتتبع 30 شركة صناعية أمريكية كبرى.'},
+  {id:'dax',sym:'GER40',name:'DAX 40',cat:'Indices',icon:'🇩🇪',color:'#dc2626',price:18421,chp:0,hist:[16800,17200,17500,17700,17900,18100,18300,18421],
+   sig:'WAIT',conf:54,target:'19000',sl:'17500',vol:'MEDIUM',
+   pred_en:'German economy struggling but stock market holding. China slowdown is a risk.',pred_ar:'الاقتصاد الألماني يعاني لكن سوق الأسهم صامد.',
+   adv_en:'🟡 WAIT. German economy weak. Energy costs still high. Better opportunities in US.',adv_ar:'🟡 انتظر. الاقتصاد الألماني ضعيف.',
+   explain_en:'DAX tracks 40 biggest German companies like Volkswagen, BMW, Siemens.',explain_ar:'DAX يتتبع أكبر 40 شركة ألمانية مثل Volkswagen وBMW.'},
+  {id:'ftse',sym:'UK100',name:'FTSE 100',cat:'Indices',icon:'🇬🇧',color:'#1d4ed8',price:8142,chp:0,hist:[7600,7700,7800,7900,8000,8050,8100,8142],
+   sig:'WAIT',conf:52,target:'8500',sl:'7800',vol:'MEDIUM',
+   pred_en:'UK economy recovering slowly. Energy and banking stocks dominate.',pred_ar:'الاقتصاد البريطاني يتعافى ببطء.',
+   adv_en:'🟡 WAIT. Slow growth, cheap valuations. No urgency.',adv_ar:'🟡 انتظر. نمو بطيء وتقييمات رخيصة.',
+   explain_en:'FTSE 100 tracks 100 biggest UK companies like Shell, HSBC, AstraZeneca.',explain_ar:'FTSE 100 يتتبع أكبر 100 شركة بريطانية.'},
+  {id:'nikkei',sym:'JP225',name:'Nikkei 225',cat:'Indices',icon:'🇯🇵',color:'#ef4444',price:38921,chp:0,hist:[33000,34000,35000,36000,37000,38000,38500,38921],
+   sig:'BUY',conf:63,target:'42000',sl:'36000',vol:'HIGH',
+   pred_en:'Bank of Japan policy shift boosting yen stocks. Exporters doing well.',pred_ar:'تحول سياسة بنك اليابان يعزز أسهم اليابان.',
+   adv_en:'✅ BUY. Japan economy rebounding. Yen weakness helps exporters. Target 42,000.',adv_ar:'✅ اشترِ. الاقتصاد الياباني ينتعش. ضعف الين يساعد المصدرين. الهدف 42,000.',
+   explain_en:'Nikkei 225 tracks top Japanese companies like Toyota, Sony, SoftBank.',explain_ar:'Nikkei 225 يتتبع أفضل الشركات اليابانية مثل Toyota وSony.'},
+  {id:'hsi',sym:'HK50',name:'Hang Seng',cat:'Indices',icon:'🇭🇰',color:'#dc2626',price:17842,chp:0,hist:[19000,18500,18200,18000,17800,17700,17800,17842],
+   sig:'SELL',conf:62,target:'16000',sl:'19000',vol:'HIGH',
+   pred_en:'China economic slowdown + real estate crisis weighing heavily.',pred_ar:'تباطؤ الاقتصاد الصيني + أزمة العقارات يثقلان بشدة.',
+   adv_en:'🔴 AVOID. China risks too high. Property crisis unresolved.',adv_ar:'🔴 تجنب. مخاطر الصين مرتفعة جداً. أزمة العقارات لم تُحل.',
+   explain_en:'Hang Seng tracks top Hong Kong/China companies. Very sensitive to Beijing policies.',explain_ar:'Hang Seng يتتبع أفضل شركات هونج كونج والصين.'},
+
+  // ── METALS ──────────────────────────────────────────────────────
+  {id:'gold',sym:'XAU/USD',name:'Gold',cat:'Metals',icon:'🥇',color:'#f59e0b',price:2320,chp:0,hist:[1980,2050,2100,2150,2200,2250,2290,2320],
+   sig:'BUY',conf:74,target:'$2,480',sl:'$2,240',vol:'LOW',
+   pred_en:'Fed rate cuts coming + geopolitical safe-haven demand. Target $2,450–2,500.',pred_ar:'تخفيضات الفيدرالي قادمة + طلب الملاذ الآمن الجيوسياسي.',
+   adv_en:'✅ BUY. Safest asset in uncertain times. Target $2,480.',adv_ar:'✅ اشترِ. أأمن الأصول في الأوقات الغامضة. الهدف $2,480.',
+   explain_en:'Gold is the world\'s oldest safe haven. When everything else is risky, gold usually rises.',explain_ar:'الذهب هو الملاذ الآمن الأقدم في العالم.'},
+  {id:'silver',sym:'XAG/USD',name:'Silver',cat:'Metals',icon:'🥈',color:'#94a3b8',price:27.84,chp:0,hist:[22,23,24,24.5,25.5,26.5,27.2,27.84],
+   sig:'BUY',conf:68,target:'$32',sl:'$25',vol:'MEDIUM',
+   pred_en:'Industrial demand from solar panels + EV batteries growing fast. Target $30–34.',pred_ar:'الطلب الصناعي من الألواح الشمسية وبطاريات السيارات الكهربائية ينمو.',
+   adv_en:'✅ BUY. Dual demand (investment + industrial). Target $32.',adv_ar:'✅ اشترِ. طلب مزدوج (استثماري + صناعي). الهدف $32.',
+   explain_en:'Silver is both an investment and industrial metal used in solar panels and batteries.',explain_ar:'الفضة استثمار ومعدن صناعي للألواح الشمسية والبطاريات.'},
+  {id:'copper',sym:'COPPER',name:'Copper',cat:'Metals',icon:'🔶',color:'#ea580c',price:4.38,chp:0,hist:[3.7,3.8,3.9,4.0,4.1,4.2,4.3,4.38],
+   sig:'BUY',conf:66,target:'$4.65',sl:'$4.05',vol:'MEDIUM',
+   pred_en:'AI data centers + EV factories driving unprecedented copper demand. Target $4.60–4.80.',pred_ar:'مراكز بيانات الذكاء الاصطناعي ومصانع السيارات الكهربائية تدفع طلباً غير مسبوق.',
+   adv_en:'✅ BUY. AI + EV mega-trend. Target $4.65.',adv_ar:'✅ اشترِ. الاتجاه الكبير للذكاء الاصطناعي والسيارات الكهربائية. الهدف $4.65.',
+   explain_en:'Copper is in every EV car, solar panel, AI data center and electric wire.',explain_ar:'النحاس في كل سيارة كهربائية ولوح شمسي ومركز بيانات وسلك كهربائي.'},
+  {id:'platinum',sym:'PLATINUM',name:'Platinum',cat:'Metals',icon:'⚪',color:'#e2e8f0',price:968,chp:0,hist:[880,900,920,930,940,950,960,968],
+   sig:'WAIT',conf:53,target:'$1,050',sl:'$900',vol:'MEDIUM',
+   pred_en:'Hydrogen fuel cell demand could boost platinum long-term.',pred_ar:'طلب خلايا الوقود الهيدروجيني قد يعزز البلاتين على المدى البعيد.',
+   adv_en:'🟡 WAIT. Long-term hydrogen story interesting but no near-term catalyst.',adv_ar:'🟡 انتظر. قصة الهيدروجين طويلة الأمد مثيرة للاهتمام لكن لا محفز قريب.',
+   explain_en:'Platinum is used in car catalytic converters and increasingly in hydrogen fuel cells.',explain_ar:'البلاتين يُستخدم في محولات السيارات وبشكل متزايد في خلايا الوقود الهيدروجيني.'},
+  {id:'palladium',sym:'PALLADIUM',name:'Palladium',cat:'Metals',icon:'🔘',color:'#64748b',price:1020,chp:0,hist:[1800,1600,1500,1400,1300,1200,1100,1020],
+   sig:'SELL',conf:63,target:'Declining',sl:'N/A',vol:'HIGH',
+   pred_en:'EV shift permanently reducing catalytic converter demand. Long-term decline.',pred_ar:'التحول للسيارات الكهربائية يقلل الطلب على محولات العادم بشكل دائم.',
+   adv_en:'🔴 AVOID. Structural decline as EVs replace combustion engines.',adv_ar:'🔴 تجنب. انخفاض هيكلي مع انتشار السيارات الكهربائية.',
+   explain_en:'Palladium is mainly used in car exhaust systems. EV growth permanently hurts demand.',explain_ar:'البلاديوم يُستخدم في أنظمة عادم السيارات. نمو السيارات الكهربائية يضر الطلب بشكل دائم.'},
+
+  // ── ENERGY ──────────────────────────────────────────────────────
+  {id:'crude',sym:'WTI',name:'Crude Oil (WTI)',cat:'Energy',icon:'🛢️',color:'#78716c',price:82.30,chp:0,hist:[85,83,80,79,81,82,83,82],
+   sig:'WAIT',conf:52,target:'$88',sl:'$76',vol:'HIGH',
+   pred_en:'OPEC cuts balanced by slowing global demand. Range-bound $78–86.',pred_ar:'تخفيضات أوبك تتوازن مع تراجع الطلب العالمي.',
+   adv_en:'🟡 WAIT. Geopolitical unknowns. Watch OPEC news.',adv_ar:'🟡 انتظر. مجاهيل جيوسياسية. راقب أخبار أوبك.',
+   explain_en:'WTI is US crude oil. OPEC controls supply — when they cut production, prices rise.',explain_ar:'WTI هو النفط الخام الأمريكي. أوبك تتحكم في الإمداد.'},
+  {id:'brent',sym:'BRENT',name:'Brent Crude',cat:'Energy',icon:'⚓',color:'#6b7280',price:86.80,chp:0,hist:[89,88,86,84,85,86,87,86.8],
+   sig:'WAIT',conf:51,target:'$92',sl:'$80',vol:'HIGH',
+   pred_en:'Global benchmark oil. Middle East tensions adding risk premium.',pred_ar:'مرجع النفط العالمي. التوترات في الشرق الأوسط تضيف علاوة مخاطر.',
+   adv_en:'🟡 WAIT. Middle East risk is wildcard. No clear direction.',adv_ar:'🟡 انتظر. مخاطر الشرق الأوسط متغير غير متوقع.',
+   explain_en:'Brent crude is the global oil benchmark. It\'s typically $4–5 more than WTI oil.',explain_ar:'خام برنت هو المرجع النفطي العالمي. عادةً أغلى بـ4-5$ من WTI.'},
+  {id:'natgas',sym:'NATGAS',name:'Natural Gas',cat:'Energy',icon:'🔥',color:'#ef4444',price:1.82,chp:0,hist:[3.2,2.8,2.4,2.2,2.0,1.95,1.85,1.82],
+   sig:'SELL',conf:64,target:'Declining',sl:'N/A',vol:'HIGH',
+   pred_en:'US oversupply keeping prices depressed. Continued decline to $1.50–1.60.',pred_ar:'الإمداد الأمريكي الزائد يبقي الأسعار منخفضة.',
+   adv_en:'🔴 AVOID. Supply glut with no end in sight.',adv_ar:'🔴 تجنب. فائض عرض لا نهاية له في الأفق.',
+   explain_en:'Natural gas heats homes and generates power. US has too much supply right now.',explain_ar:'الغاز الطبيعي يُستخدم لتدفئة المنازل وتوليد الطاقة.'},
+
+  // ── AGRICULTURE ──────────────────────────────────────────────────
+  {id:'wheat',sym:'WHEAT',name:'Wheat',cat:'Agriculture',icon:'🌾',color:'#d97706',price:585.25,chp:0,hist:[650,630,610,600,590,588,586,585],
+   sig:'WAIT',conf:53,target:'$620',sl:'$555',vol:'HIGH',
+   pred_en:'Ukraine war + Black Sea tensions are wildcards. Range-bound.',pred_ar:'الحرب في أوكرانيا ومنطقة البحر الأسود متغيرات غير متوقعة.',
+   adv_en:'🟡 WAIT. Geopolitical risk unpredictable. Monitor Ukraine news.',adv_ar:'🟡 انتظر. المخاطر الجيوسياسية لا يمكن التنبؤ بها.',
+   explain_en:'Wheat makes bread and pasta. Ukraine war has massively affected global supply.',explain_ar:'القمح لصنع الخبز والمعكرونة. الحرب في أوكرانيا أثرت على الإمداد العالمي.'},
+  {id:'corn',sym:'CORN',name:'Corn',cat:'Agriculture',icon:'🌽',color:'#fbbf24',price:441.75,chp:0,hist:[480,470,460,455,448,445,443,441],
+   sig:'WAIT',conf:48,target:'$460',sl:'$420',vol:'MEDIUM',
+   pred_en:'High US supply keeping prices capped. Ethanol demand to watch.',pred_ar:'الإمداد الأمريكي المرتفع يكبح الأسعار. راقب بيانات الإيثانول.',
+   adv_en:'🟡 WAIT. No clear upside catalyst. Better trades elsewhere.',adv_ar:'🟡 انتظر. لا محفز صاعد واضح.',
+   explain_en:'Corn is used for food, animal feed, and ethanol fuel. US is the world\'s biggest producer.',explain_ar:'الذرة لغذاء الإنسان والحيوان ووقود الإيثانول.'},
+  {id:'coffee',sym:'COFFEE',name:'Coffee',cat:'Agriculture',icon:'☕',color:'#92400e',price:211.50,chp:0,hist:[170,178,185,192,198,204,208,211],
+   sig:'BUY',conf:67,target:'$240',sl:'$192',vol:'MEDIUM',
+   pred_en:'Vietnam + Brazil crop problems. Demand never stops. Target $230–250.',pred_ar:'مشاكل محاصيل فيتنام والبرازيل. الطلب لا يتوقف أبداً.',
+   adv_en:'✅ BUY. Strong uptrend. Supply crisis. Target $240.',adv_ar:'✅ اشترِ. اتجاه صاعد قوي. أزمة إمداد. الهدف $240.',
+   explain_en:'Coffee prices rise when Brazil or Vietnam harvests are bad. Demand never disappears.',explain_ar:'أسعار القهوة ترتفع عندما تسوء المحاصيل في البرازيل أو فيتنام.'},
+  {id:'cocoa',sym:'COCOA',name:'Cocoa',cat:'Agriculture',icon:'🍫',color:'#7c3aed',price:9840,chp:0,hist:[4200,5000,6200,7000,8100,9000,9500,9840],
+   sig:'BUY',conf:71,target:'$12,000',sl:'$8,500',vol:'VERY HIGH',
+   pred_en:'Historic supply crisis. Ghana + Ivory Coast crop failure. Prices at all-time high.',pred_ar:'أزمة إمداد تاريخية. فشل محاصيل غانا وساحل العاج.',
+   adv_en:'✅ BUY. Unprecedented supply crisis. Very high risk/reward.',adv_ar:'✅ اشترِ. أزمة إمداد غير مسبوقة. مخاطرة/مكافأة عالية جداً.',
+   explain_en:'70% of cocoa comes from Ghana and Ivory Coast. Both had terrible harvests.',explain_ar:'70% من الكاكاو يأتي من غانا وساحل العاج. كلاهما لديهما محاصيل سيئة.'},
+  {id:'sugar',sym:'SUGAR',name:'Sugar',cat:'Agriculture',icon:'🍬',color:'#ec4899',price:21.84,chp:0,hist:[18,18.5,19,19.8,20.5,21,21.5,21.84],
+   sig:'BUY',conf:62,target:'$25',sl:'$19.50',vol:'MEDIUM',
+   pred_en:'El Niño hurting Brazil sugar crop. Target $24–26.',pred_ar:'ظاهرة النينيو تضر محصول السكر البرازيلي.',
+   adv_en:'✅ BUY. Weather supply disruption. Target $25.',adv_ar:'✅ اشترِ. اضطراب الإمداد من الطقس. الهدف $25.',
+   explain_en:'Sugar price mainly driven by Brazil weather and food/beverage company demand.',explain_ar:'سعر السكر يتحرك بالطقس في البرازيل وطلب شركات الأغذية.'},
+  {id:'soy',sym:'SOY',name:'Soybeans',cat:'Agriculture',icon:'🫘',color:'#65a30d',price:1158.25,chp:0,hist:[1350,1300,1250,1220,1190,1170,1160,1158],
+   sig:'WAIT',conf:51,target:'$1,220',sl:'$1,100',vol:'MEDIUM',
+   pred_en:'South America supply glut. China buying pace key variable.',pred_ar:'فائض إمداد أمريكا الجنوبية. وتيرة شراء الصين متغير رئيسي.',
+   adv_en:'🟡 WAIT. Abundant supply capping prices.',adv_ar:'🟡 انتظر. الإمداد الوفير يكبح الأسعار.',
+   explain_en:'Soybeans for animal feed and cooking oil. Brazil and US are top producers. China buys most.',explain_ar:'فول الصويا لأعلاف الحيوانات وزيت الطهي. الصين أكبر مشترٍ.'},
+  {id:'cotton',sym:'COTTON',name:'Cotton',cat:'Agriculture',icon:'🌿',color:'#d1fae5',price:80.24,chp:0,hist:[82,81,80.5,80,80.2,80.5,80.3,80.24],
+   sig:'WAIT',conf:49,target:'$85',sl:'$76',vol:'MEDIUM',
+   pred_en:'Range-bound $78–84. US planting data and China demand key.',pred_ar:'في نطاق 78-84$. بيانات الزراعة الأمريكية والطلب الصيني مهمان.',
+   adv_en:'🟡 WAIT. No clear trend. Better opportunities elsewhere.',adv_ar:'🟡 انتظر. لا اتجاه واضح.',
+   explain_en:'Cotton makes clothes and textiles. Prices depend on US farming and China demand.',explain_ar:'القطن لصنع الملابس والمنسوجات.'},
+];
+
+const cats=['All','Stocks','Forex','Crypto','Indices','Metals','Energy','Agriculture'];
+const catIcons={All:'🌐',Stocks:'📈',Forex:'💱',Crypto:'💰',Indices:'📊',Metals:'🥇',Energy:'⚡',Agriculture:'🌱'};
+
+// ══════════════════════════════════════════════
+// MOBILE NAVIGATION
+// ══════════════════════════════════════════════
+function toggleSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('mobOverlay');
+  s.classList.toggle('open');
+  o.classList.toggle('show');
+}
+function toggleMobileChat(){
+  const c=document.getElementById('chatPanel');
+  const o=document.getElementById('mobOverlay');
+  c.classList.toggle('open');
+  o.classList.toggle('show');
+  if(c.classList.contains('open')){
+    document.getElementById('mobChatBtn').style.display='none';
+  }
+}
+function closeMobileAll(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('chatPanel').classList.remove('open');
+  document.getElementById('mobOverlay').classList.remove('show');
+  document.getElementById('mobChatBtn').style.display='';
+}
+
+// When asset selected on mobile, close sidebar
+function selectAssetAndClose(id){
+  selectAsset(id);
+  if(window.innerWidth<=768) closeMobileAll();
+}
+
+// ══════════════════════════════════════════════
+// REAL-TIME LIVE DATA — FINNHUB
+// ══════════════════════════════════════════════
+const FINNHUB_KEY  = 'd6hkgnpr01qr5k4cb7ngd6hkgnpr01qr5k4cb7o0';
+// gold-api.com: completely free, no key, CORS enabled
+// Symbols: XAU=Gold  XAG=Silver  XPT=Platinum  XPD=Palladium
+
+// Map asset IDs to Finnhub symbols
+const FINNHUB_SYMBOLS = {
+  // US Stocks — Finnhub REST + WebSocket
+  nvda:    { type:'stock', sym:'NVDA'  },
+  msft:    { type:'stock', sym:'MSFT'  },
+  meta:    { type:'stock', sym:'META'  },
+  tsla:    { type:'stock', sym:'TSLA'  },
+  amzn:    { type:'stock', sym:'AMZN'  },
+  aapl:    { type:'stock', sym:'AAPL'  },
+  googl:   { type:'stock', sym:'GOOGL' },
+  nflx:    { type:'stock', sym:'NFLX'  },
+  amd:     { type:'stock', sym:'AMD'   },
+  crm:     { type:'stock', sym:'CRM'   },
+  baba:    { type:'stock', sym:'BABA'  },
+  jpm:     { type:'stock', sym:'JPM'   },
+  v:       { type:'stock', sym:'V'     },
+  wmt:     { type:'stock', sym:'WMT'   },
+  dis:     { type:'stock', sym:'DIS'   },
+  uber:    { type:'stock', sym:'UBER'  },
+  pypl:    { type:'stock', sym:'PYPL'  },
+  intc:    { type:'stock', sym:'INTC'  },
+  // Metals — handled separately via gold-api.com (see pollMetals below)
+  // Indices — Finnhub
+  us500:   { type:'index', sym:'INDEX:SPX'   },
+  nasdaq:  { type:'index', sym:'INDEX:NDX'   },
+  dow:     { type:'index', sym:'INDEX:DJI'   },
+  dax:     { type:'index', sym:'INDEX:DEX'   },
+  ftse:    { type:'index', sym:'INDEX:UKX'   },
+  nikkei:  { type:'index', sym:'INDEX:NKY'   },
+  // Forex — Finnhub  
+  eurusd:  { type:'forex', sym:'OANDA:EUR_USD' },
+  gbpusd:  { type:'forex', sym:'OANDA:GBP_USD' },
+  usdjpy:  { type:'forex', sym:'OANDA:USD_JPY' },
+  usdchf:  { type:'forex', sym:'OANDA:USD_CHF' },
+  audusd:  { type:'forex', sym:'OANDA:AUD_USD' },
+  usdcad:  { type:'forex', sym:'OANDA:USD_CAD' },
+  nzdusd:  { type:'forex', sym:'OANDA:NZD_USD' },
+  eurgbp:  { type:'forex', sym:'OANDA:EUR_GBP' },
+  usdzar:  { type:'forex', sym:'OANDA:USD_ZAR' },
+  usdtry:  { type:'forex', sym:'OANDA:USD_TRY' },
+  usdinr:  { type:'forex', sym:'OANDA:USD_INR' },
+};
+
+// Store open prices (fetched once at load) for % change calc
+const openPrices = {};
+let wsConn = null;
+let wsReconnectTimer = null;
+let priceFlashTimers = {};
+
+// ── STATUS BAR ──────────────────────────────
+function setLiveStatus(online){
+  const pill = document.getElementById('liveLabel');
+  const dot  = document.querySelector('.lpd');
+  if(online){
+    pill.textContent = lang==='ar' ? 'مباشر' : 'LIVE';
+    dot.style.background = 'var(--green)';
+  } else {
+    pill.textContent = 'CONNECTING…';
+    dot.style.background = 'var(--yellow)';
+  }
+}
+
+// ── FLASH PRICE CELL ─────────────────────────
+function flashPrice(id, up){
+  const els = document.querySelectorAll(`[data-price-id="${id}"]`);
+  els.forEach(el=>{
+    el.classList.remove('price-up','price-dn');
+    void el.offsetWidth;
+    el.classList.add(up ? 'price-up' : 'price-dn');
+    clearTimeout(priceFlashTimers[id]);
+    priceFlashTimers[id] = setTimeout(()=>el.classList.remove('price-up','price-dn'),700);
+  });
+}
+
+// ── APPLY NEW PRICE ──────────────────────────
+function applyPrice(assetId, newPrice){
+  const a = assets.find(x=>x.id===assetId);
+  if(!a) return;
+  const prev = a.price;
+  a.price = newPrice;
+
+  // % change vs today open
+  if(openPrices[assetId]){
+    a.chp = parseFloat((((newPrice - openPrices[assetId]) / openPrices[assetId]) * 100).toFixed(2));
+  }
+
+  // Update price history for chart (keep last 8 points)
+  a.hist.push(newPrice);
+  if(a.hist.length > 8) a.hist.shift();
+
+  const up = newPrice >= prev;
+  flashPrice(assetId, up);
+
+  // Re-render sidebar item inline (no full re-render flicker)
+  buildTicker();
+  renderSidebarItem(assetId);
+
+  // Re-render detail if this asset is selected
+  if(selectedAsset && selectedAsset.id===assetId){
+    selectedAsset = a;
+    if(activeMainTab==='detail') renderDetail();
+  }
+}
+
+// ── RENDER A SINGLE SIDEBAR ROW ───────────────
+function renderSidebarItem(id){
+  const a = assets.find(x=>x.id===id);
+  if(!a) return;
+  const isFav = watchlist.has(a.id);
+  const isUp  = a.chp >= 0;
+  const sc = a.sig==='BUY'?'var(--green)':a.sig==='SELL'?'var(--red)':'var(--yellow)';
+  const existing = document.querySelector(`.asset-item[data-id="${id}"]`);
+  if(!existing) return;
+  existing.querySelector('.ai-price').textContent = '$'+formatPrice(a.price);
+  const chgEl = existing.querySelector('.ai-chg');
+  chgEl.textContent = (isUp?'+':'')+a.chp.toFixed(2)+'%';
+  chgEl.className = 'ai-chg '+(isUp?'green':'red');
+}
+
+// ── FETCH QUOTES for stocks, forex, metals, indices ─
+async function fetchQuotes(){
+  // Fetch ONLY stocks via Finnhub — metals/forex have their own APIs
+  const ids = Object.keys(FINNHUB_SYMBOLS).filter(id=>FINNHUB_SYMBOLS[id].type==='stock');
+  await Promise.all(ids.map(async id=>{
+    const sym = FINNHUB_SYMBOLS[id].sym;
+    try{
+      const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`);
+      const d = await r.json();
+      if(d && d.c && d.c > 0){
+        openPrices[id] = d.o || d.pc || d.c;
+        applyPrice(id, d.c);
+      }
+    } catch(e){ console.warn('Quote fetch failed:',sym,e); }
+  }));
+}
+
+// ── WEBSOCKET — INSTANT UPDATES ──────────────
+function connectWebSocket(){
+  if(wsConn) wsConn.close();
+  setLiveStatus(false);
+
+  wsConn = new WebSocket(`wss://ws.finnhub.io?token=${FINNHUB_KEY}`);
+
+  wsConn.onopen = ()=>{
+    setLiveStatus(true);
+    // Subscribe only to stock symbols via WebSocket (free plan)
+    Object.entries(FINNHUB_SYMBOLS)
+      .filter(([,v])=>v.type==='stock')
+      .forEach(([,s])=>{
+        wsConn.send(JSON.stringify({type:'subscribe', symbol:s.sym}));
+      });
+  };
+
+  wsConn.onmessage = (evt)=>{
+    try{
+      const msg = JSON.parse(evt.data);
+      if(msg.type==='trade' && msg.data){
+        msg.data.forEach(trade=>{
+          // Find which asset this trade belongs to
+          const entry = Object.entries(FINNHUB_SYMBOLS).find(([,v])=>v.sym===trade.s);
+          if(entry){
+            applyPrice(entry[0], trade.p);
+          }
+        });
+      }
+    } catch(e){}
+  };
+
+  wsConn.onerror = ()=>{ setLiveStatus(false); };
+
+  wsConn.onclose = ()=>{
+    setLiveStatus(false);
+    // Auto-reconnect after 5 seconds
+    clearTimeout(wsReconnectTimer);
+    wsReconnectTimer = setTimeout(connectWebSocket, 5000);
+  };
+}
+
+// ── POLL CRYPTO PRICES (every 5s as backup) ──
+// Crypto via Binance direct API (no key needed, more reliable)
+// ── CRYPTO — CoinLore (free, no key, no registration, works everywhere) ──
+// Docs: https://www.coinlore.com/cryptocurrency-data-api
+// Endpoint: https://api.coinlore.net/api/ticker/?id=ID1,ID2,...
+// CoinLore IDs for our coins (permanent, never change):
+const COINLORE_IDS = {
+  btc:  '90',
+  eth:  '80',
+  bnb:  '2710',
+  xrp:  '58',
+  sol:  '48543',
+  ada:  '257',
+  doge: '2',
+  avax: '44883',
+  dot:  '64935',
+  link: '1975',
+  ltc:  '1',
+};
+
+async function pollCryptoPrices(){
+  try{
+    const ids = Object.values(COINLORE_IDS).join(',');
+    const r = await fetch(`https://api.coinlore.net/api/ticker/?id=${ids}`);
+    const data = await r.json();
+    if(Array.isArray(data)){
+      data.forEach(coin => {
+        // Find which of our assets matches this coin
+        const entry = Object.entries(COINLORE_IDS).find(([,id]) => id === String(coin.id));
+        if(entry){
+          const assetId = entry[0];
+          const price = parseFloat(coin.price_usd);
+          const chp   = parseFloat(coin.percent_change_24h);
+          if(price > 0){
+            if(!openPrices[assetId]) openPrices[assetId] = price;
+            applyPrice(assetId, price);
+            // Set real 24h % change from API
+            const a = assets.find(x => x.id === assetId);
+            if(a && !isNaN(chp)) a.chp = chp;
+          }
+        }
+      });
+    }
+  } catch(e){
+    console.warn('CoinLore fetch error:', e);
+  }
+}
+
+// ── POLL METALS — gold-api.com (free, no rate limit) ────
+// Endpoint: GET https://api.gold-api.com/price/{SYMBOL}
+// Response: { price: 3100.50, prev_close_price: 3090.00, ch: 10.50, chp: 0.34 }
+const METAL_SYMBOLS = {
+  gold:      'XAU',
+  silver:    'XAG',
+  platinum:  'XPT',
+  palladium: 'XPD',
+};
+
+async function pollMetals(){
+  for(const [id, sym] of Object.entries(METAL_SYMBOLS)){
+    try{
+      const r = await fetch(`https://api.gold-api.com/price/${sym}`);
+      const d = await r.json();
+      // gold-api returns: { price, prev_close_price, ch, chp, ... }
+      if(d && d.price && d.price > 0){
+        if(!openPrices[id]) openPrices[id] = d.prev_close_price || d.price;
+        applyPrice(id, d.price);
+        // Also update chp directly from API since it gives us the real daily change
+        const a = assets.find(x=>x.id===id);
+        if(a && d.chp !== undefined) a.chp = parseFloat(d.chp.toFixed(2));
+      }
+    } catch(e){ console.warn('Metals API error:', id, e); }
+    // 200ms gap between requests to be polite
+    await new Promise(res=>setTimeout(res,200));
+  }
+}
+
+// ── POLL FOREX — exchangerate-api.com (free, no key needed) ──
+// Base URL: https://open.er-api.com/v6/latest/USD
+// Returns all currency rates vs USD — completely free, no key
+const FOREX_KEY = 'de6bda55dfc00b7fc5f20270';
+// Endpoint: GET https://v6.exchangerate-api.com/v6/KEY/latest/USD
+const FOREX_PAIRS = {
+  eurusd:  { base:'EUR', quote:'USD', invert:true  },  // EUR/USD  = 1/USD_EUR_rate
+  gbpusd:  { base:'GBP', quote:'USD', invert:true  },  // GBP/USD
+  usdjpy:  { base:'USD', quote:'JPY', invert:false },   // USD/JPY  = direct
+  usdchf:  { base:'USD', quote:'CHF', invert:false },
+  audusd:  { base:'AUD', quote:'USD', invert:true  },
+  usdcad:  { base:'USD', quote:'CAD', invert:false },
+  nzdusd:  { base:'NZD', quote:'USD', invert:true  },
+  eurgbp:  { base:'EUR', quote:'GBP', invert:false },
+  usdzar:  { base:'USD', quote:'ZAR', invert:false },
+  usdtry:  { base:'USD', quote:'TRY', invert:false },
+  usdinr:  { base:'USD', quote:'INR', invert:false },
+  usdaed:  { base:'USD', quote:'AED', invert:false },
+  usdsau:  { base:'USD', quote:'SAR', invert:false },
+};
+
+let forexRatesUSD = {};   // rates[currency] = how many of that currency per 1 USD
+let forexRatesEUR = {};   // rates[currency] = how many of that currency per 1 EUR
+
+async function pollForex(){
+  try{
+    // Fetch USD base rates (covers most pairs)
+    const r1 = await fetch(`https://v6.exchangerate-api.com/v6/${FOREX_KEY}/latest/USD`);
+    const d1 = await r1.json();
+    if(d1 && d1.result === 'success' && d1.rates){
+      forexRatesUSD = d1.rates;
+      // Calculate each pair price
+      // exchangerate-api USD base: rates[X] = how many X per 1 USD
+      // Examples: rates.JPY=151.8 means 1 USD = 151.8 JPY (so USD/JPY = 151.8)
+      //           rates.EUR=0.921 means 1 USD = 0.921 EUR (so EUR/USD = 1/0.921 = 1.086)
+      for(const [id, cfg] of Object.entries(FOREX_PAIRS)){
+        let price = null;
+        const rBase  = forexRatesUSD[cfg.base];   // how many BASE per 1 USD
+        const rQuote = forexRatesUSD[cfg.quote];  // how many QUOTE per 1 USD
+
+        if(cfg.base === 'USD'){
+          // USD/JPY, USD/CHF, USD/CAD etc: price = rates[QUOTE]
+          price = rQuote;
+        } else if(cfg.quote === 'USD'){
+          // EUR/USD, GBP/USD, AUD/USD, NZD/USD: price = 1 / rates[BASE]
+          if(rBase) price = 1 / rBase;
+        } else {
+          // Cross pairs EUR/GBP, USD/ZAR etc: price = rates[QUOTE] / rates[BASE]
+          if(rBase && rQuote) price = rQuote / rBase;
+        }
+
+        if(price && price > 0){
+          // Round to correct decimal places per pair type
+          const bigNum = ['usdjpy','usdinr','usdzar','usdtry','usdaed','usdsau'];
+          price = parseFloat(price.toFixed(bigNum.includes(id) ? 2 : 4));
+          if(!openPrices[id]) openPrices[id] = price;
+          applyPrice(id, price);
+        }
+      }
+    }
+  } catch(e){ console.warn('Forex API error:', e); }
+}
+
+// ── START EVERYTHING ─────────────────────────
+async function initLiveData(){
+  setLiveStatus(false);
+  // 1. Stocks — Finnhub REST quote (immediate)
+  await fetchQuotes();
+  // 2. Crypto — Binance (immediate, every 5s)
+  await pollCryptoPrices();
+  setInterval(pollCryptoPrices, 5000);
+  // 3. Metals — gold-api.com (immediate, every 60s — free tier friendly)
+  await pollMetals();
+  setInterval(pollMetals, 60000);
+  // 4. Forex — open.er-api.com (immediate, every 60s — free, no key)
+  await pollForex();
+  setInterval(pollForex, 60000);
+  // 5. Stocks WebSocket — instant streaming
+  connectWebSocket();
+  // 6. Stock quote backup refresh every 60s
+  setInterval(fetchQuotes, 60000);
+}
+
+// ══════════════════════════════════════════════
+// TICKER
+// ══════════════════════════════════════════════
+function buildTicker(){
+  const picks=assets.filter((_,i)=>i%3===0).slice(0,12);
+  const d=[...picks,...picks];
+  document.getElementById('tickerInner').innerHTML=d.map(a=>`
+    <div class="ti">
+      <span class="ti-sym">${a.sym}</span>
+      <span class="ti-pr">$${formatPrice(a.price)}</span>
+      <span class="${a.chp>=0?'ti-up':'ti-dn'}">${a.chp>=0?'▲':'▼'}${Math.abs(a.chp).toFixed(2)}%</span>
+    </div>`).join('');
+}
+
+function formatPrice(p){
+  if(p>=10000) return p.toLocaleString('en',{maximumFractionDigits:0});
+  if(p>=1000) return p.toLocaleString('en',{maximumFractionDigits:0});
+  if(p>=10) return p.toFixed(2);
+  return p.toFixed(2);
+}
+
+// ══════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════
+function buildCatTabs(){
+  document.getElementById('catTabs').innerHTML=cats.map(c=>`
+    <button class="cat-btn${c===activeCat?' active':''}" onclick="selectCat('${c}')">${catIcons[c]}</button>`).join('');
+}
+function selectCat(c){
+  activeCat=c;buildCatTabs();renderSidebar('');
+  document.getElementById('sideSearch').value='';
+}
+function sideFilter(q){renderSidebar(q);}
+function renderSidebar(q){
+  const ql=q.toLowerCase();
+  const list=assets.filter(a=>{
+    const catMatch=activeCat==='All'||a.cat===activeCat;
+    const qMatch=!ql||a.sym.toLowerCase().includes(ql)||a.name.toLowerCase().includes(ql);
+    return catMatch&&qMatch;
+  });
+  const groups={};
+  list.forEach(a=>{groups[a.cat]=groups[a.cat]||[];groups[a.cat].push(a);});
+  let html='';
+  Object.keys(groups).forEach(cat=>{
+    if(activeCat==='All') html+=`<div class="section-label">${catIcons[cat]} ${cat}</div>`;
+    groups[cat].forEach(a=>{
+      const isFav=watchlist.has(a.id);
+      const isUp=a.chp>=0;
+      const sc=a.sig==='BUY'?'var(--green)':a.sig==='SELL'?'var(--red)':'var(--yellow)';
+      html+=`<div class="asset-item${selectedAsset&&selectedAsset.id===a.id?' selected':''}" data-id="${a.id}" onclick="selectAssetAndClose('${a.id}')">
+        <div class="ai-left">
+          <div class="ai-icon" style="background:${a.color}22">${a.icon}</div>
+          <div>
+            <div class="ai-name">${a.sym}</div>
+            <div class="ai-type" style="color:${sc};font-weight:600;font-size:.58rem">${a.sig}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:2px">
+          <div class="ai-right">
+            <div class="ai-price" data-price-id="${a.id}">$${formatPrice(a.price)}</div>
+            <div class="ai-chg ${isUp?'green':'red'}">${isUp?'+':''}${a.chp.toFixed(2)}%</div>
+          </div>
+          <button class="fav-star${isFav?' on':''}" onclick="toggleFav('${a.id}',event)">${isFav?'★':'☆'}</button>
+        </div>
+      </div>`;
+    });
+  });
+  if(!html) html=`<div style="padding:20px 8px;text-align:center;color:var(--sub);font-size:.76rem">${lang==='ar'?'لا توجد نتائج':'No results found'}</div>`;
+  document.getElementById('assetList').innerHTML=html;
+}
+
+// ══════════════════════════════════════════════
+// MAIN TABS
+// ══════════════════════════════════════════════
+function switchMainTab(tab,el){
+  activeMainTab=tab;
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderMainContent();
+}
+function renderMainContent(){
+  if(activeMainTab==='detail') renderDetail();
+  else if(activeMainTab==='watchlist') renderWatchlist();
+  else renderNews();
+}
+function selectAsset(id){
+  selectedAsset=assets.find(a=>a.id===id);
+  renderSidebar(document.getElementById('sideSearch').value);
+  if(activeMainTab!=='detail'){
+    activeMainTab='detail';
+    document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('mtab-detail').classList.add('active');
+  }
+  renderDetail();
+  // Auto-open chat on mobile with asset context
+  if(window.innerWidth<=768 && selectedAsset){
+    setTimeout(()=>{
+      const ctx=`I just selected ${selectedAsset.name} (${selectedAsset.sym}). Current price: $${formatPrice(selectedAsset.price)}, change: ${selectedAsset.chp>=0?'+':''}${selectedAsset.chp}%, AI signal: ${selectedAsset.sig}. Can you give me a quick analysis?`;
+      // Pre-fill the chat input
+      document.getElementById('chatInp').value=`Tell me about ${selectedAsset.sym}`;
+    },200);
+  }
+}
+
+// ══════════════════════════════════════════════
+// RENDER DETAIL
+// ══════════════════════════════════════════════
+function renderDetail(){
+  const ca=document.getElementById('contentArea');
+  if(!selectedAsset){
+    ca.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--sub)">
+      <div style="font-size:2.5rem;margin-bottom:14px">📊</div>
+      <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:7px">${lang==='ar'?'اختر أصلاً من القائمة':'Select an asset to analyze'}</div>
+      <div style="font-size:.77rem;line-height:1.7;max-width:300px;margin:0 auto">${lang==='ar'?'اختر من الأسهم أو العملات الرقمية أو المعادن أو الطاقة أو الزراعة':'Choose from Stocks, Crypto, Metals, Energy, or Agriculture'}</div>
+      <div style="margin-top:20px;font-size:.72rem;color:var(--accent)">${lang==='ar'?'👆 انقر على أي أصل في اليسار':'👆 Tap ☰ Markets to browse assets'}</div>
+    </div>`;
+    return;
+  }
+  const a=selectedAsset;
+  const isUp=a.chp>=0;
+  const sigClass=a.sig==='BUY'?'sig-buy':a.sig==='SELL'?'sig-sell':'sig-wait';
+  const sigColor=a.sig==='BUY'?'var(--green)':a.sig==='SELL'?'var(--red)':'var(--yellow)';
+  const sigEmoji=a.sig==='BUY'?'✅':a.sig==='SELL'?'🔴':'🟡';
+  const sigText_en=a.sig==='BUY'?'BUY NOW':a.sig==='SELL'?'AVOID / SELL':'WAIT FOR BETTER PRICE';
+  const sigText_ar=a.sig==='BUY'?'اشترِ الآن':a.sig==='SELL'?'تجنب / بيع':'انتظر سعراً أفضل';
+  const adv=lang==='ar'?a.adv_ar:a.adv_en;
+  const pred=lang==='ar'?a.pred_ar:a.pred_en;
+  const explain=lang==='ar'?a.explain_ar:a.explain_en;
+  const fcls=a.sig==='BUY'?'cfg':a.sig==='SELL'?'cfr':'cfy';
+  const isFav=watchlist.has(a.id);
+  const mn=Math.min(...a.hist),mx=Math.max(...a.hist);
+  const pts=a.hist.map((v,i)=>`${(i/(a.hist.length-1))*400},${78-((v-mn)/(mx-mn||1))*72}`).join(' ');
+  const c=isUp?'#10b981':'#ef4444';
+
+  ca.innerHTML=`
+    <div class="detail-header">
+      <div class="dh-left">
+        <div class="dh-icon" style="background:${a.color}22;font-size:1.7rem">${a.icon}</div>
+        <div>
+          <div class="dh-name">${a.name} <span style="font-size:.9rem;color:var(--sub);font-weight:400">${a.sym}</span></div>
+          <div class="dh-full">${a.cat} • Global Market</div>
+          <div style="margin-top:5px;display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:.63rem;font-weight:700;padding:2px 8px;border-radius:6px;background:${a.color}22;color:${a.color}">${a.cat}</span>
+            <span style="font-size:.63rem;font-weight:700;padding:2px 8px;border-radius:6px;background:${sigColor}22;color:${sigColor}">${sigEmoji} ${lang==='ar'?sigText_ar:sigText_en}</span>
+            <button onclick="toggleFav('${a.id}')" style="font-size:.75rem;background:none;border:1px solid var(--border);border-radius:6px;padding:2px 7px;cursor:pointer;color:${isFav?'#f59e0b':'var(--sub)'};">${isFav?'★ Saved':'☆ Save'}</button>
+          </div>
+        </div>
+      </div>
+      <div class="dh-price-block">
+        <div class="dh-price price-live">$${formatPrice(a.price)}</div>
+        <div class="dh-chg ${isUp?'green':'red'}">${isUp?'▲':' ▼'} ${isUp?'+':''}${a.chp.toFixed(2)}%</div>
+        <div style="font-size:.58rem;color:var(--sub);margin-top:3px">🔴 LIVE • Real-time data</div>
+      </div>
+    </div>
+
+    <div class="signal-row">
+      <div class="sig-card ${sigClass}">
+        <div class="sig-label">🤖 ${lang==='ar'?'إشارة الذكاء الاصطناعي':'AI SIGNAL'}</div>
+        <div class="sig-main">${sigEmoji} ${lang==='ar'?sigText_ar:sigText_en}</div>
+        <div class="sig-sub">${adv}</div>
+      </div>
+      <div class="sig-card" style="background:var(--card2);border-color:var(--border)">
+        <div class="sig-label" style="color:var(--sub)">📊 ${lang==='ar'?'ثقة الذكاء الاصطناعي':'AI CONFIDENCE'}</div>
+        <div class="sig-main" style="color:${sigColor};font-size:1.6rem">${a.conf}%</div>
+        <div class="sig-sub">${lang==='ar'?'مستوى الثقة في التحليل':'Confidence in analysis'}</div>
+      </div>
+    </div>
+
+    <div class="conf-section">
+      <div class="conf-label"><span>${lang==='ar'?'مستوى ثقة الإشارة':'Signal confidence level'}</span><span style="color:${sigColor};font-weight:700">${a.conf}%</span></div>
+      <div class="conf-track"><div class="conf-fill ${fcls}" style="width:${a.conf}%"></div></div>
+    </div>
+
+    <div class="explainer">
+      <div class="exp-title">💡 ${lang==='ar'?'ما هذا الأصل؟':'What is this asset?'}</div>
+      <div class="exp-body">${explain}</div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">📈 ${lang==='ar'?'مخطط السعر':'Price Chart'} — ${a.name}</div>
+      <svg class="chart-svg" viewBox="0 0 400 85" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="cg${a.id}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${c}" stop-opacity=".25"/>
+            <stop offset="100%" stop-color="${c}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <polygon points="0,80 ${pts} 400,80" fill="url(#cg${a.id})"/>
+        <polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="sig-card ${sigClass}" style="margin-bottom:14px">
+      <div class="sig-label">🔭 ${lang==='ar'?'تنبؤ الذكاء الاصطناعي':'AI PREDICTION'}</div>
+      <div class="sig-sub" style="font-size:.78rem">${pred}</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-box"><div class="ib-label">${lang==='ar'?'السعر الحالي':'Current Price'}</div><div class="ib-val">$${formatPrice(a.price)}</div></div>
+      <div class="info-box"><div class="ib-label">${lang==='ar'?'التغير':'Change'}</div><div class="ib-val ${isUp?'green':'red'}">${isUp?'+':''}${a.chp.toFixed(2)}%</div></div>
+      <div class="info-box"><div class="ib-label">${lang==='ar'?'الهدف':'Target'}</div><div class="ib-val green">${a.target}</div></div>
+      <div class="info-box"><div class="ib-label">${lang==='ar'?'وقف الخسارة':'Stop Loss'}</div><div class="ib-val red">${a.sl}</div></div>
+      <div class="info-box"><div class="ib-label">${lang==='ar'?'مستوى الخطر':'Risk Level'}</div><div class="ib-val yellow">${a.vol}</div></div>
+      <div class="info-box"><div class="ib-label">${lang==='ar'?'الفئة':'Category'}</div><div class="ib-val">${a.cat}</div></div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:.68rem;font-weight:700;color:var(--accent);margin-bottom:10px;">🤖 ${lang==='ar'?'اسأل الذكاء الاصطناعي عن':'Ask AI about'} ${a.name}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <button onclick="askAboutAsset('${a.id}','analysis')" style="font-size:.65rem;padding:5px 10px;border-radius:7px;border:1px solid var(--accent);background:rgba(59,130,246,.1);color:var(--accent);cursor:pointer;">📊 ${lang==='ar'?'تحليل كامل':'Full Analysis'}</button>
+        <button onclick="askAboutAsset('${a.id}','risk')" style="font-size:.65rem;padding:5px 10px;border-radius:7px;border:1px solid var(--yellow);background:rgba(245,158,11,.1);color:var(--yellow);cursor:pointer;">⚠️ ${lang==='ar'?'ما هي المخاطر؟':'What are the risks?'}</button>
+        <button onclick="askAboutAsset('${a.id}','beginner')" style="font-size:.65rem;padding:5px 10px;border-radius:7px;border:1px solid var(--green);background:rgba(16,185,129,.1);color:var(--green);cursor:pointer;">💡 ${lang==='ar'?'اشرح للمبتدئين':'Explain for beginners'}</button>
+      </div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+// ASK AI ABOUT ASSET (from detail page buttons)
+// ══════════════════════════════════════════════
+function askAboutAsset(id, type){
+  const a=assets.find(x=>x.id===id);
+  if(!a) return;
+  const queries={
+    analysis:`Give me a detailed analysis of ${a.name} (${a.sym}). Current price: $${formatPrice(a.price)}, daily change: ${a.chp>=0?'+':''}${a.chp}%, AI signal: ${a.sig} with ${a.conf}% confidence. What is your assessment?`,
+    risk:`What are the main risks of investing in ${a.name} (${a.sym}) right now? It's trading at $${formatPrice(a.price)}.`,
+    beginner:`Explain ${a.name} (${a.sym}) to a complete beginner. What is it, how does it work, and is now a good time to consider it?`
+  };
+  // Open chat on mobile
+  if(window.innerWidth<=768){
+    document.getElementById('chatPanel').classList.add('open');
+    document.getElementById('mobOverlay').classList.add('show');
+    document.getElementById('mobChatBtn').style.display='none';
+  }
+  document.getElementById('chatInp').value=queries[type];
+  sendMsg();
+}
+
+// ══════════════════════════════════════════════
+// WATCHLIST
+// ══════════════════════════════════════════════
+function toggleFav(id,e){
+  if(e) e.stopPropagation();
+  watchlist.has(id)?watchlist.delete(id):watchlist.add(id);
+  renderSidebar(document.getElementById('sideSearch').value);
+  if(selectedAsset&&selectedAsset.id===id) renderDetail();
+  if(activeMainTab==='watchlist') renderWatchlist();
+}
+function renderWatchlist(){
+  const ca=document.getElementById('contentArea');
+  const list=assets.filter(a=>watchlist.has(a.id));
+  if(!list.length){
+    ca.innerHTML=`<div class="empty-wl"><div class="ewl-icon">⭐</div><div class="ewl-title">${lang==='ar'?'قائمة المتابعة فارغة':'Watchlist Empty'}</div><div class="ewl-sub">${lang==='ar'?'انقر ☆ بجانب أي أصل لإضافته هنا.':'Click ☆ next to any asset to add it here.'}</div></div>`;
+    return;
+  }
+  ca.innerHTML=`<div class="wl-grid">${list.map(a=>{
+    const isUp=a.chp>=0;
+    const sc=a.sig==='BUY'?'wlc-buy':a.sig==='SELL'?'wlc-sell':'wlc-wait';
+    const sigColor=a.sig==='BUY'?'var(--green)':a.sig==='SELL'?'var(--red)':'var(--yellow)';
+    const fcls=a.sig==='BUY'?'cfg':a.sig==='SELL'?'cfr':'cfy';
+    const sigEmoji=a.sig==='BUY'?'✅':a.sig==='SELL'?'🔴':'🟡';
+    const adv=lang==='ar'?a.adv_ar:a.adv_en;
+    return `<div class="wl-card" onclick="selectAsset('${a.id}')">
+      <div class="wlc-top">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="wlc-icon" style="background:${a.color}22">${a.icon}</div>
+          <div><div class="wlc-name">${a.sym}</div><div class="wlc-full">${a.name}</div></div>
+        </div>
+        <span class="wlc-sig ${sc}">${sigEmoji} ${a.sig}</span>
+      </div>
+      <div class="wlc-price ${isUp?'green':'red'}">$${formatPrice(a.price)} <span style="font-size:.68rem">${isUp?'+':''}${a.chp.toFixed(2)}%</span></div>
+      <div class="wlc-advice" style="color:${sigColor}">${adv}</div>
+      <div class="wlc-conf">
+        <span style="font-size:.58rem;color:var(--sub)">AI:</span>
+        <div class="wlc-bar"><div class="wlc-fill ${fcls}" style="width:${a.conf}%"></div></div>
+        <span class="wlc-pct">${a.conf}%</span>
+        <button onclick="toggleFav('${a.id}',event)" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-size:.78rem;padding:0 2px">★</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ══════════════════════════════════════════════
+// NEWS
+// ══════════════════════════════════════════════
+const newsData=[
+  {src:'Bloomberg',h_en:'Fed signals potential rate cut — Gold, Bitcoin, and equities rally on the news',h_ar:'الاحتياطي الفيدرالي يلمح لخفض الفائدة — الذهب والبيتكوين والأسهم ترتفع',sent:'bull',tag:'MACRO'},
+  {src:'Reuters',h_en:'NVIDIA smashes earnings — AI chip demand shows no signs of slowing down',h_ar:'NVIDIA تحقق أرباحاً قياسية — الطلب على رقائق الذكاء الاصطناعي لا يتباطأ',sent:'bull',tag:'NVDA'},
+  {src:'CNBC',h_en:'Bitcoin halving complete — Historically this has preceded major bull runs',h_ar:'اكتمال تنصيف Bitcoin — تاريخياً هذا سبق موجات صعود كبرى',sent:'bull',tag:'BTC'},
+  {src:'Financial Times',h_en:'West Africa cocoa crop crisis deepens — prices hit all-time record highs',h_ar:'أزمة محصول الكاكاو في غرب أفريقيا تتعمق — الأسعار تسجل مستويات قياسية',sent:'bull',tag:'COCOA'},
+  {src:'Al Jazeera',h_en:'Middle East tensions ease slightly — Oil prices fall, gold holds steady',h_ar:'توترات الشرق الأوسط تخف — أسعار النفط تنخفض، الذهب يتماسك',sent:'neut',tag:'OIL/GOLD'},
+  {src:'Bloomberg',h_en:'Tesla loses global EV market share to BYD for third consecutive quarter',h_ar:'Tesla تخسر حصتها في سوق السيارات الكهربائية لصالح BYD للربع الثالث',sent:'bear',tag:'TSLA'},
+  {src:'Nikkei',h_en:'Copper demand booming — AI data centers and EV factories driving unprecedented need',h_ar:'الطلب على النحاس يتصاعد — مراكز بيانات الذكاء الاصطناعي ومصانع السيارات الكهربائية',sent:'bull',tag:'COPPER'},
+  {src:'Reuters',h_en:'Brazil coffee crop threatened by drought — Prices surge to multi-year highs',h_ar:'محصول القهوة البرازيلي مهدد بالجفاف — الأسعار ترتفع لأعلى مستوى في سنوات',sent:'bull',tag:'COFFEE'},
+  {src:'Arab News',h_en:'Saudi Aramco expands despite oil price drop — Vision 2030 diversification accelerating',h_ar:'أرامكو السعودية تتوسع رغم تراجع النفط — تنويع رؤية 2030 يتسارع',sent:'neut',tag:'ENERGY'},
+];
+function renderNews(){
+  document.getElementById('contentArea').innerHTML=`<div class="news-grid">${newsData.map(n=>{
+    const sc=n.sent==='bull'?'sent-bull':n.sent==='bear'?'sent-bear':'sent-neut';
+    const sl=n.sent==='bull'?'↑ '+(lang==='ar'?'صاعد':'Bullish'):n.sent==='bear'?'↓ '+(lang==='ar'?'هابط':'Bearish'):'● '+(lang==='ar'?'محايد':'Neutral');
+    const h=lang==='ar'?n.h_ar:n.h_en;
+    return `<div class="news-card">
+      <div class="nc-src">${n.src}</div>
+      <div class="nc-head">${h}</div>
+      <div class="nc-foot"><span class="nc-tag">#${n.tag}</span><span class="nc-sent ${sc}">${sl}</span></div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ══════════════════════════════════════════════
+// REAL AI CHAT — POWERED BY CLAUDE
+// ══════════════════════════════════════════════
+const SYSTEM_PROMPT=`You are StockSense AI, an expert financial market analyst and advisor. You are embedded in a market intelligence platform that covers stocks, crypto, metals, energy, and agriculture markets.
+
+Your personality:
+- Expert but accessible — explain complex things simply
+- Direct and confident — give clear BUY / WAIT / AVOID signals when asked
+- Always mention risk — never encourage gambling or reckless investing
+- Bilingual aware — if the user writes in Arabic, respond fully in Arabic
+
+Current market data available:
+${assets.map(a=>`${a.sym} (${a.name}): $${formatPrice(a.price)}, ${a.chp>=0?'+':''}${a.chp}%, Signal: ${a.sig}, Confidence: ${a.conf}%`).join('\n')}
+
+Rules:
+1. Always end responses with: ⚠️ AI analysis only. Not financial advice.
+2. Keep responses concise but thorough — use emojis and line breaks for readability
+3. When giving a signal, explain WHY in simple terms
+4. For beginners, use real-world analogies
+5. If asked about a specific asset, reference the current price data above`;
+
+async function callClaudeAPI(userMessage){
+  chatHistory.push({role:'user',content:userMessage});
+  const messages=chatHistory.slice(-10); // keep last 10 messages for context
+  
+  try{
+    const response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:SYSTEM_PROMPT,
+        messages:messages
+      })
+    });
+    const data=await response.json();
+    const reply=data.content&&data.content[0]?data.content[0].text:'Sorry, I had trouble connecting. Please try again.';
+    chatHistory.push({role:'assistant',content:reply});
+    return reply;
+  } catch(err){
+    chatHistory.pop(); // remove user message if failed
+    return '⚠️ Connection error. Please check your internet and try again.';
+  }
+}
+
+function addMsg(txt,isUser){
+  const m=document.getElementById('chatMsgs');
+  const d=document.createElement('div');
+  d.className='msg '+(isUser?'msg-user':'msg-ai');
+  if(!isUser) d.innerHTML=`<div class="mlbl">StockSense AI ✨</div>${txt.replace(/\n/g,'<br>')}`;
+  else d.textContent=txt;
+  m.appendChild(d);
+  m.scrollTop=m.scrollHeight;
+}
+
+function showTyping(){
+  const m=document.getElementById('chatMsgs');
+  const d=document.createElement('div');
+  d.className='msg msg-ai';d.id='tdot';
+  d.innerHTML=`<div class="mlbl">StockSense AI ✨</div><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+
+async function sendMsg(){
+  if(isSending) return;
+  const inp=document.getElementById('chatInp');
+  const btn=document.getElementById('sendBtn');
+  const txt=inp.value.trim();
+  if(!txt) return;
+  
+  isSending=true;
+  inp.value='';
+  btn.disabled=true;
+  addMsg(txt,true);
+  showTyping();
+  
+  try{
+    const reply=await callClaudeAPI(txt);
+    const t=document.getElementById('tdot');
+    if(t) t.remove();
+    addMsg(reply,false);
+  } catch(e){
+    const t=document.getElementById('tdot');
+    if(t) t.remove();
+    addMsg('⚠️ Something went wrong. Please try again.',false);
+  }
+  
+  isSending=false;
+  btn.disabled=false;
+  inp.focus();
+}
+
+function sendChip(el){
+  document.getElementById('chatInp').value=el.getAttribute('data-'+lang)||el.textContent;
+  sendMsg();
+}
+
+// ══════════════════════════════════════════════
+// LANGUAGE
+// ══════════════════════════════════════════════
+const Txt={
+  en:{live:'LIVE',disc:'Disclaimer',strip:'⚠️ AI Analysis Only — NOT Financial Advice — Past performance ≠ future results — StockSense AI bears NO liability for investment losses',lang:'🌐 عربي',
+    chatTitle:'AI Advisor',chatSub:'Powered by real AI • Ask anything',chatDisc:'AI analysis only. Not financial advice.',
+    searchPh:'Search any asset...',mt0:'Analysis',mt1:'Watchlist',mt2:'News',
+    mTitle:'⚠️ Important Legal Disclaimer',mBtn:'I Understand — Let Me In',
+    welcome:`Hi! I'm your AI market advisor powered by <strong>Claude AI</strong>. I cover <strong>stocks, crypto, gold, silver, oil, wheat, coffee, sugar</strong> and more.<br><br>Click any asset to see its analysis, or ask me directly below.<br><br>I give: <strong style="color:var(--green)">BUY</strong>, <strong style="color:var(--yellow)">WAIT</strong>, or <strong style="color:var(--red)">AVOID</strong> signals with real reasoning.<br><br><span style="color:var(--yellow);font-size:.68rem">⚠️ AI analysis only. Not financial advice.</span>`},
+  ar:{live:'مباشر',disc:'إخلاء المسؤولية',strip:'⚠️ تحليل ذكاء اصطناعي فقط — ليس نصيحة مالية — الأداء السابق لا يضمن المستقبل — StockSense AI لا تتحمل أي مسؤولية عن الخسائر',lang:'🌐 English',
+    chatTitle:'المستشار الذكي',chatSub:'مدعوم بذكاء اصطناعي حقيقي • اسألني أي شيء',chatDisc:'تحليل ذكاء اصطناعي فقط. ليس نصيحة مالية.',
+    searchPh:'ابحث عن أي أصل...',mt0:'التحليل',mt1:'قائمتي',mt2:'الأخبار',
+    mTitle:'⚠️ إخلاء المسؤولية القانوني',mBtn:'أفهم وأوافق — دعني أدخل',
+    welcome:`مرحباً! أنا مستشارك المالي الذكي مدعوم بـ<strong>Claude AI</strong>. أغطي <strong>الأسهم والعملات الرقمية والذهب والفضة والنفط والقمح والقهوة والسكر</strong> وأكثر.<br><br>انقر على أي أصل لرؤية تحليله، أو اسألني مباشرة أدناه.<br><br>سأعطيك: <strong style="color:var(--green)">اشترِ</strong>، <strong style="color:var(--yellow)">انتظر</strong>، أو <strong style="color:var(--red)">تجنب</strong> مع أسباب حقيقية.<br><br><span style="color:var(--yellow);font-size:.68rem">⚠️ تحليل ذكاء اصطناعي فقط. ليس نصيحة مالية.</span>`}
+};
+
+function applyLang(l){
+  const t=Txt[l];
+  document.getElementById('liveLabel').textContent=t.live;
+  document.getElementById('discBtnTxt').textContent=t.disc;
+  document.getElementById('discStrip').textContent=t.strip;
+  document.getElementById('langBtn').textContent=t.lang;
+  document.getElementById('chatTitle').textContent=t.chatTitle;
+  document.getElementById('chatSub').textContent=t.chatSub;
+  document.getElementById('chatDisc').textContent=t.chatDisc;
+  document.getElementById('sideSearch').placeholder=t.searchPh;
+  document.getElementById('mt0').textContent=t.mt0;
+  document.getElementById('mt1').textContent=t.mt1;
+  document.getElementById('mt2').textContent=t.mt2;
+  document.getElementById('mt').textContent=t.mTitle;
+  document.getElementById('mbtn').textContent=t.mBtn;
+  document.getElementById('welcomeMsg').innerHTML=t.welcome;
+  document.querySelectorAll('.chip').forEach(c=>{const v=c.getAttribute('data-'+l);if(v) c.textContent=v;});
+}
+function toggleLang(){
+  lang=lang==='en'?'ar':'en';
+  document.documentElement.lang=lang;
+  document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  applyLang(lang);
+  buildCatTabs();
+  renderSidebar(document.getElementById('sideSearch').value);
+  renderMainContent();
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+
+// ══════════════════════════════════════════════
+// AUTH — REGISTER / LOGIN
+// ══════════════════════════════════════════════
+let currentUser=null;
+function showRegister(){
+  document.getElementById('regView').style.display='';
+  document.getElementById('loginView').style.display='none';
+  document.getElementById('regError').style.display='none';
+  document.getElementById('dModal').classList.add('open');
+}
+function showLogin(){
+  document.getElementById('loginView').style.display='';
+  document.getElementById('regView').style.display='none';
+  document.getElementById('regError').style.display='none';
+  document.getElementById('dModal').classList.add('open');
+}
+function handleRegister(){
+  const name=document.getElementById('regName').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const agreed=document.getElementById('discCheck').checked;
+  if(!name){showError(lang==='ar'?'الرجاء إدخال اسمك':'Please enter your name');return;}
+  if(!email||!email.includes('@')){showError(lang==='ar'?'الرجاء إدخال بريد إلكتروني صحيح':'Please enter a valid email');return;}
+  if(!agreed){showError(lang==='ar'?'يجب قراءة إخلاء المسؤولية والموافقة عليه':'You must agree to the disclaimer to continue');return;}
+  const users=JSON.parse(localStorage.getItem('ss_users')||'{}');
+  if(users[email]){showError(lang==='ar'?'هذا البريد مسجل بالفعل. سجّل دخولك.':'Email already registered. Please sign in.');return;}
+  users[email]={name,email,joined:new Date().toISOString()};
+  localStorage.setItem('ss_users',JSON.stringify(users));
+  localStorage.setItem('ss_current',JSON.stringify({name,email}));
+  loginSuccess({name,email});
+}
+function handleLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  if(!email||!email.includes('@')){showError(lang==='ar'?'الرجاء إدخال بريد إلكتروني صحيح':'Please enter a valid email');return;}
+  const users=JSON.parse(localStorage.getItem('ss_users')||'{}');
+  if(!users[email]){showError(lang==='ar'?'لم يتم العثور على هذا البريد. أنشئ حساباً جديداً.':'Email not found. Create an account instead.');return;}
+  localStorage.setItem('ss_current',JSON.stringify(users[email]));
+  loginSuccess(users[email]);
+}
+function loginSuccess(user){
+  currentUser=user;
+  document.getElementById('dModal').classList.remove('open');
+  document.getElementById('topRegBtn').style.display='none';
+  document.getElementById('topLoginBtn').style.display='none';
+  document.getElementById('topUserBadge').style.display='';
+  document.getElementById('topUserName').textContent=user.name.split(' ')[0];
+  document.getElementById('regError').style.display='none';
+}
+function handleLogout(){
+  currentUser=null;
+  localStorage.removeItem('ss_current');
+  document.getElementById('topRegBtn').style.display='';
+  document.getElementById('topLoginBtn').style.display='';
+  document.getElementById('topUserBadge').style.display='none';
+}
+function showError(msg){
+  const e=document.getElementById('regError');
+  e.textContent=msg;e.style.display='block';
+}
+(function(){try{const s=JSON.parse(localStorage.getItem('ss_current'));if(s&&s.name)loginSuccess(s);}catch(e){}})();
+buildTicker();
+buildCatTabs();
+renderSidebar('');
+selectAsset('nvda');
+// Start real-time live data
+initLiveData();
+</script>
+</body>
+</html>
